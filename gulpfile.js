@@ -1,13 +1,47 @@
 var gulp = require('gulp');
 var concat = require('gulp-concat');
+var clean = require('gulp-clean');
+var cleanDest = require('gulp-clean-dest');
 var less = require('gulp-less');
 
 
+gulp.task('clean', function() {
+    gulp.src('build/')
+        .pipe(clean());
+
+});
+
+gulp.task('copy', function() {
+
+    // Index file
+    gulp.src('index.html')
+        .pipe(cleanDest('build'))
+        .pipe(gulp.dest('build'));
+
+    // Javascript files
+    gulp.src('src/js/*')
+        .pipe(cleanDest('build/js'))
+        .pipe(gulp.dest('build/js'));
+
+    // Vendor Files
+    gulp.src('src/vendor/**/*')
+        .pipe(cleanDest('build/vendor'))
+        .pipe(gulp.dest('build/vendor'));
+
+    // Angular Views
+    gulp.src('src/views/*')
+        .pipe(cleanDest('build/views'))
+        .pipe(gulp.dest('build/views'));
+
+});
+
+
 gulp.task('less', function() {
-    gulp.src('levsdelight_app/static/src/less/*.less')
+    gulp.src('src/less/*.less')
         .pipe(less())
         .pipe(concat('all.css'))
-        .pipe(gulp.dest('levsdelight_app/static/build/css'));
+        .pipe(cleanDest('build/css'))
+        .pipe(gulp.dest('build/css'));
 });
 
 gulp.task('watch', function() {
@@ -21,4 +55,4 @@ gulp.task('watch', function() {
     });
 });
 
-gulp.task('default', ['less', 'watch']);
+gulp.task('default', ['copy', 'less', 'watch']);
