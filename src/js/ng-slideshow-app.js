@@ -1,4 +1,4 @@
-var slideshowApp = angular.module('slideshow', ['ui.router'])
+var slideshowApp = angular.module('slideshow', ['ui.router', 'ui.bootstrap'])
     .config(['$stateProvider', '$urlRouterProvider', function($stateProvider, $urlRouterProvider) {
         $urlRouterProvider.otherwise('/');
         $stateProvider
@@ -6,10 +6,11 @@ var slideshowApp = angular.module('slideshow', ['ui.router'])
                 url: '/',
                 views: {
                     'navigation': {
-                        templateUrl: 'static/src/views/navigation.html'
+                        templateUrl: 'views/navigation.html'
                     },
                     'content': {
-                        templateUrl: 'static/src/views/content.html'
+                        templateUrl: 'views/content.html',
+                        controller: 'MainContent'
                     }
                 }
             });
@@ -17,3 +18,10 @@ var slideshowApp = angular.module('slideshow', ['ui.router'])
     .run(['$state', function($state) {
         $state.go('levs-main');
     }]);
+
+
+slideshowApp.controller('MainContent', function() {
+
+    console.log('Main Content controller');
+
+});
