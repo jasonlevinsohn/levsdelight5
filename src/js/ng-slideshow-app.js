@@ -20,8 +20,18 @@ var slideshowApp = angular.module('slideshow', ['ui.router', 'ui.bootstrap'])
     }]);
 
 
-slideshowApp.controller('MainContent', function() {
+slideshowApp.controller('MainContent', ['$http', function($http) {
+    var slideshowP;
 
     console.log('Main Content controller');
 
-});
+    slideshowP = $http.get('http://localhost:8000/api/slideshow/2014/march/');
+
+    slideshowP.then(function(success) {
+        console.log('Success: ', success);
+    }, function(error) {
+        console.log('Error: ', error);
+    });
+    
+
+}]);
