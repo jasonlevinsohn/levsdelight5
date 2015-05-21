@@ -1,1 +1,6 @@
-This is our main content section
+<ul class=picture-picker>
+    <li class="picture" ng-repeat="s in mc.monthSlides">
+    <img src="http://levsdelight.s3.amazonaws.com/img/{{ s.pictureLocation }}" alt=""> 
+        {{ s.title }} --- {{ s.desc }}
+    </li>
+</ul>

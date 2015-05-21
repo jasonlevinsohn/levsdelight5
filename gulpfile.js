@@ -3,6 +3,7 @@ var concat = require('gulp-concat');
 var clean = require('gulp-clean');
 var cleanDest = require('gulp-clean-dest');
 var less = require('gulp-less');
+var livereload = require('gulp-livereload');
 
 
 gulp.task('clean', function() {
@@ -16,7 +17,9 @@ gulp.task('copy-index', function() {
 
     gulp.src('index.html')
         .pipe(cleanDest('build'))
-        .pipe(gulp.dest('build'));
+        .pipe(gulp.dest('build'))
+        .pipe(livereload());
+        
 
 });
 
@@ -25,7 +28,8 @@ gulp.task('copy-views', function() {
 
     gulp.src('src/views/*')
         .pipe(cleanDest('build/views'))
-        .pipe(gulp.dest('build/views'));
+        .pipe(gulp.dest('build/views'))
+        .pipe(livereload());
     
 });
 
@@ -54,7 +58,8 @@ gulp.task('less', function() {
         .pipe(less())
         .pipe(concat('all.css'))
         .pipe(cleanDest('build/css'))
-        .pipe(gulp.dest('build/css'));
+        .pipe(gulp.dest('build/css'))
+        .pipe(livereload());
 });
 
 gulp.task('watch', function() {
@@ -66,7 +71,9 @@ gulp.task('watch', function() {
         viewsFilename,
         jsWatcher,
         jsFilename;
-    
+   
+    // Live Reload
+    livereload.listen();
 
     // Less Watcher
     lessWatcher = gulp.watch('src/less/*.less', ['less']);

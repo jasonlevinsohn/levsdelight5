@@ -10,20 +10,21 @@
 </head>
 <body class="container-fluid" ng-app="slideshow">
     <header>
-        <div id="logo">
-            <h2>Lev's Delight</h2>
-            <h3>by Jason and Natty</h3>
-        </div>
-        <div id="login">
-            Login section
-        </div>
+        <!-- <div id="logo"> -->
+        <!--     <h2>Lev's Delight</h2> -->
+        <!--     <h3>by Jason and Natty</h3> -->
+        <!-- </div> -->
+        <!-- <div id="login"> -->
+        <!--     Login section -->
+        <!-- </div> -->
     </header>
     <section class="main-container">
         <!-- <ng-include src="'views/main.html'"></ng-include> -->
         <section ui-view="navigation"></section>
-        <section ui-view="content"></section>
+        <section ui-view="content" class="main-content"></section>
     </section>
 
+    <script src="vendor/lodash/lodash.min.js"></script>
     <script src="vendor/jquery/dist/jquery.min.js"></script>
     <script src="vendor/angularjs/angular.min.js"></script>
     <script src="vendor/angular-ui-router/release/angular-ui-router.min.js"></script>

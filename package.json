@@ -17,6 +17,7 @@
     "gulp-clean": "^0.3.1",
     "gulp-clean-dest": "^0.1.0",
     "gulp-concat": "^2.5.2",
-    "gulp-less": "^3.0.3"
+    "gulp-less": "^3.0.3",
+    "gulp-livereload": "^3.8.0"
   }
 }
