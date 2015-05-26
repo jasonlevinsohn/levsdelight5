@@ -1,24 +1,32 @@
-html {
-    // width: 100%;
-    height: 100%;
+.gradient (@startColor: #eee, @endColor: white) {
+	background-color: @startColor;
+	background: -webkit-gradient(linear, left top, left bottom, from(@startColor), to(@endColor));
+	background: -webkit-linear-gradient(top, @startColor, @endColor);
+	background: -moz-linear-gradient(top, @startColor, @endColor);
+	background: -ms-linear-gradient(top, @startColor, @endColor);
+	background: -o-linear-gradient(top, @startColor, @endColor);
 }
 
 body { 
     width: 100%;
-    height: 100%;
-    background-image: linear-gradient(bottom, rgb(105,173,212) 0%, rgb(23,82,145) 84%);
-    background-image: -o-linear-gradient(bottom, rgb(105,173,212) 0%, rgb(23,82,145) 84%);
-    background-image: -moz-linear-gradient(bottom, rgb(105,173,212) 0%, rgb(23,82,145) 84%);
-    background-image: -webkit-linear-gradient(bottom, rgb(105,173,212) 0%, rgb(23,82,145) 84%);
-    background-image: -ms-linear-gradient(bottom, rgb(105,173,212) 0%, rgb(23,82,145) 84%);
+
+    // This is the key to having the gradient the full height of the app.
+    min-height: 100%;
+    overflow: scroll;
+    .gradient(rgb(105, 173, 212) 8%, rgb(23, 82, 145) 84%);
+    // background-image: linear-gradient(bottom, rgb(105,173,212) 0%, rgb(23,82,145) 84%);
+    // background-image: -o-linear-gradient(bottom, rgb(105,173,212) 0%, rgb(23,82,145) 84%);
+    // background-image: -moz-linear-gradient(bottom, rgb(105,173,212) 0%, rgb(23,82,145) 84%);
+    // background-image: -webkit-linear-gradient(bottom, rgb(105,173,212) 0%, rgb(23,82,145) 84%);
+    // background-image: -ms-linear-gradient(bottom, rgb(105,173,212) 0%, rgb(23,82,145) 84%);
     
-    background-image: -webkit-gradient(
-        linear,
-        left bottom,
-        left top,
-        color-stop(0, rgb(105,173,212)),
-        color-stop(0.84, rgb(23,82,145))
-    );
+    // background-image: -webkit-gradient(
+    //     linear,
+    //     left bottom,
+    //     left top,
+    //     color-stop(0, rgb(105,173,212)),
+    //     color-stop(0.84, rgb(23,82,145))
+    // );
     
     color: #5698A3;
     font-family: "Trebuchet MS",Arial,Helvetica,sans-serif;

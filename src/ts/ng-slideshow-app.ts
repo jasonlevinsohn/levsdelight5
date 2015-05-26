@@ -1,3 +1,8 @@
+/// <reference path="../ts/definitions/angular.d.ts" />
+/// <reference path="../ts/definitions/lodash.d.ts" />
+
+console.log('awesome');
+
 var slideshowApp = angular.module('slideshow', ['ui.router', 'ui.bootstrap'])
     .config(['$stateProvider', '$urlRouterProvider', function($stateProvider, $urlRouterProvider) {
         $urlRouterProvider.otherwise('/');
@@ -27,11 +32,8 @@ slideshowApp.controller('MainContent', ['$http', function($http) {
 
     // Scoped Variablies
     self.monthSlides = [];
-    self.allSlides = [];
 
     var init = function() {
-        var allSlidesP;
-
         slideshowP = $http.get('http://localhost:8000/api/slideshow/2014/march/');
 
         slideshowP.then(function(success) {
@@ -40,7 +42,7 @@ slideshowApp.controller('MainContent', ['$http', function($http) {
                 formattedData,
                 oneSlideshow;
 
-            // Parse the data from Django into a Javascript Collection
+        // Parse the data from Django into a Javascript Collection
 
             // TODO: Try using a different $http function other than GET,
             // because we have to use Parse twice.
@@ -61,34 +63,6 @@ slideshowApp.controller('MainContent', ['$http', function($http) {
 
         };
 
-    var getAllSlides = function() {
-        var allSlidesP,
-            localSlides;
-            
-
-        allSlidesP = $http.get('http://localhost:8000/api/allslides/30/');
-
-        allSlidesP.then(function(success) {
-            console.log('Success: ', success);
-            if (success.data) {
-                localSlides = _.map(success.data, function(d) {
-                    return d.fields;
-                });
-
-            } else {
-                $log.warn('Error retrieving all slides data');
-            }
-
-            console.log('All Slides: ', localSlides);
-
-            self.allSlides = localSlides;
-
-        }, function(error) {
-            console.log('Error: ', error);
-        });
-
-    };
-
     var buildSlideshowArray = function(slideshowMonthfromDjango) {
         var arrayOfSlides = [];
         _.each(slideshowMonthfromDjango, function(slide) {
@@ -96,77 +70,54 @@ slideshowApp.controller('MainContent', ['$http', function($http) {
         });
 
         return arrayOfSlides;
+
+
     };
 
     // init();
-    getAllSlides();
 
 }])
-.controller('NavigationCtrl', ['$http', '$log', 'DataService', function($http, $log, DataService) {
+.controller('NavigationCtrl', ['$http', '$log', function($http, $log) {
     console.log('Navigation Controller');
 
     var monthMapP,
         self = this;
-
-    DataService.getUniqueYears();
+    
+    
 
     var init = function() {
         monthMapP = $http.get('http://localhost:8000/api/monthlist/');
 
         monthMapP.then(function(success) {
-            var years;
+            var data,
+                yearsList,
+                uniqueYears;
 
             if (success.data) {
-                DataService.setMonthMap(success.data);
-                years = DataService.getUniqueYears();
-                console.log('years: ', years);
+               data = success.data;
+               yearsList = _.map(data, function(d: string) {
+                   return d.fields.year;
+               });
+
+               // Sorted Unique List
+               uniqueYears = _.uniq(yearsList);
+
+               uniqueYears.sort(function(a, b) {
+                   return b - a;
+               });
+
+               console.log('Years: ', uniqueYears);
 
             } else {
                 $log.warn("No Month List Data");
             }
+            console.log('month map: ', success);
         });
-
-    };
-
-    // Builds a list of the years for which pictures have been
-    // accumulated.
-    var buildYearsList = function(list) {
 
     };
 
     init();
 
-}])
-.service('DataService', function() {
-    var pub = {};
-    var self = this;
-
-    pub.setMonthMap = function(list) {
-        var monthMap;
-
-        self.monthMap = list;
-
-    };
-
-    pub.getUniqueYears = function() {
-        var uniqueYears,
-            yearsList;
-            
-        yearsList = _.map(self.monthMap, function(d) {
-            return d.fields.year;
-        });
-
-        // Sorted Unique List
-        uniqueYears = _.uniq(yearsList);
-
-        uniqueYears.sort(function(a, b) {
-            return b - a;
-        });
-
-        return uniqueYears;
-    };
-
-    return pub;
-});
+}]);
 
 

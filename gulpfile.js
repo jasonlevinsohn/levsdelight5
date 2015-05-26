@@ -4,6 +4,7 @@ var clean = require('gulp-clean');
 var cleanDest = require('gulp-clean-dest');
 var less = require('gulp-less');
 var livereload = require('gulp-livereload');
+var ts = require('gulp-typescript');
 
 
 gulp.task('clean', function() {
@@ -38,9 +39,20 @@ gulp.task('copy-js', function() {
 
     gulp.src('src/js/*')
         .pipe(cleanDest('build/js'))
-        .pipe(gulp.dest('build/js'));
+        .pipe(gulp.dest('build/js'))
+        .pipe(livereload());
 
     
+});
+
+gulp.task('transpile-js-files', function() {
+    var tsResult = gulp.src('src/ts/*.ts')
+        .pipe(ts({
+            // noImplicitAny: true,
+            out: 'ng-slideshow-app.ts.js'
+        }));
+
+    return tsResult.js.pipe(gulp.dest('build/js'));
 });
 
 gulp.task('copy', function() {
@@ -60,6 +72,16 @@ gulp.task('less', function() {
         .pipe(cleanDest('build/css'))
         .pipe(gulp.dest('build/css'))
         .pipe(livereload());
+});
+
+gulp.task('watch-ts', function() {
+    var tsWatcher;
+
+    tsWatcher = gulp.watch('src/ts/*.ts', ['transpile-js-files']);
+
+    tsWatcher.on('change', function(event) {
+        console.log('Typescript file changed.');
+    });
 });
 
 gulp.task('watch', function() {
@@ -104,3 +126,6 @@ gulp.task('watch', function() {
 });
 
 gulp.task('default', ['copy-views', 'copy-index', 'copy-js', 'copy', 'less', 'watch']);
+// gulp.task('default', ['copy-views', 'copy-index', 'transpile-js-files', 'copy', 'less', 'watch', 'watch-ts']);
+
+gulp.task('ts', ['transpile-js-files', 'watch-ts']);
