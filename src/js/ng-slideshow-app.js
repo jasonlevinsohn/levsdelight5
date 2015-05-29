@@ -119,7 +119,7 @@ slideshowApp.controller('MainContent', ['$http', 'DataService', function($http, 
     var getAllSlides = function(number) {
         var allSlidesP;
 
-        allSlidesP = $http.get('http://localhost:8000/api/allslides/' + number + '/');
+        allSlidesP = $http.get('/api/allslides/' + number + '/');
 
 
         return allSlidesP;
@@ -146,7 +146,7 @@ slideshowApp.controller('MainContent', ['$http', 'DataService', function($http, 
     DataService.getUniqueYears();
 
     var init = function() {
-        monthMapP = $http.get('http://localhost:8000/api/monthlist/');
+        monthMapP = $http.get('/api/monthlist/');
 
         monthMapP.then(function(success) {
             var years;
