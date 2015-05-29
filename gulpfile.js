@@ -13,6 +13,14 @@ gulp.task('clean', function() {
 
 });
 
+// Copy Images
+gulp.task('copy-images', function() {
+
+    gulp.src('src/img/**/*')
+        .pipe(cleanDest('build/img'))
+        .pipe(gulp.dest('build/img'));
+});
+
 // Copy index file
 gulp.task('copy-index', function() {
 
@@ -125,7 +133,8 @@ gulp.task('watch', function() {
     });
 });
 
-gulp.task('default', ['copy-views', 'copy-index', 'copy-js', 'copy', 'less', 'watch']);
+gulp.task('default', ['copy-images', 'copy-views', 'copy-index', 'copy-js', 'copy', 'less', 'watch']);
+gulp.task('build', ['copy-images', 'copy-views', 'copy-index', 'copy-js', 'copy', 'less']);
 // gulp.task('default', ['copy-views', 'copy-index', 'transpile-js-files', 'copy', 'less', 'watch', 'watch-ts']);
 
 gulp.task('ts', ['transpile-js-files', 'watch-ts']);

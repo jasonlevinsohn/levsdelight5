@@ -1,12 +1,63 @@
+// Media Queries
+@tablet: ~"only screen and (min-width: 768px)";
+@desktop: ~"only screen and (min-width: 992px)";
+
 .main-content {
-    li.slide-tile {
-        border: 1px solid #000;
-        list-style: none;
-        width: 100px;
-        height: 100px;
-        padding: 10px;
-        margin: 10px;
-        color: #fff;
+    .slides-wrapper {
+        ul {
+            padding: 0;
+        }
+
+        li {
+            color: white;
+            list-style: none;
+            text-align: center;
+            border-bottom: 1px solid grey;
+
+            &.slide-header {
+                margin-top: 20px;
+                font-size: 2em;
+                color: grey;
+                background-color: lightgrey;
+            }
+
+            &.slide-tile {
+                // border: 1px solid #000;
+                // width: 100px;
+                // height: 150px;
+                // padding: 10px;
+                margin: 0px;
+                min-height: 165px;
+
+                @media @tablet {
+                    min-height: 250px;
+                }
+
+            }
+
+            .date {
+                padding-top: 10px;
+                font-size: 14px;
+            }
+
+            img {
+                height: 100%;
+                width: 100%;
+
+                @media @tablet {
+                    height: 160px;
+                    width: 215px;
+
+                }
+
+            }
+
+            .title {
+                margin-top: 5px;
+                font-size: 13px;
+            }
+        }
     }
+
 
 }

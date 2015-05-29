@@ -4,9 +4,27 @@
 <!--         {{ s.title }} --- {{ s.desc }} -->
 <!--     </li> -->
 <!-- </ul> -->
-<div class="slides-wrapper">
-    <ul class="row">
-        <li class="slide-tile col-xs-12" ng-repeat="s in mc.allSlides">{{ s.pub_date }}</li>
+<div
+    class="slides-wrapper container-fluid"
+    infinite-scroll="mc.doScroll()"
+    infinite-scroll-distance="1"
+    infinite-scroll-disabled="mc.disableScroll">
+    <!-- <ul class="row"> -->
+    <!--     <li class="slide-tile col-xs-12" ng-repeat="s in mc.allSlides">{{ s.pub_date }}</li> -->
+    <!-- </ul> -->
+    <ul class="row"
+        ng-repeat="group in mc.orderedSlides">
+        <li class="slide-header col-xs-12" ng-if="group.header">{{ group.name }}</li>
+        <li
+            ng-if="!group.header"
+            class="col-xs-6 col-sm-4 slide-tile"
+            ng-repeat="slide in group.list">
+            <div class="date">{{ slide.displayDate }} </div>
+            <img class="img-rounded" ng-src="http://levsdelight.s3.amazonaws.com/img/{{ slide.pictureLocation }}" alt="">
+            <div class="title">{{ slide.title }}</div>
+            <div class="desc hidden-xs">{{ slide.desc }}</div>
+        </li>
     </ul>
+
 </div>
 
