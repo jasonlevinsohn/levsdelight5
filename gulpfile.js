@@ -45,7 +45,7 @@ gulp.task('copy-views', function() {
 // Copy app javascript files
 gulp.task('copy-js', function() {
 
-    gulp.src('src/js/*')
+    gulp.src('src/js/**/*')
         .pipe(cleanDest('build/js'))
         .pipe(gulp.dest('build/js'))
         .pipe(livereload());

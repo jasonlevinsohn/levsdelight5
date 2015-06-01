@@ -20,7 +20,12 @@
             class="col-xs-6 col-sm-4 slide-tile"
             ng-repeat="slide in group.list">
             <div class="date">{{ slide.displayDate }} </div>
-            <img class="img-rounded" ng-src="http://levsdelight.s3.amazonaws.com/img/{{ slide.pictureLocation }}" alt="">
+            <div class="image-wrapper">
+                <img
+                    fullscreen-image
+                    class="img-rounded"
+                    ng-src="http://levsdelight.s3.amazonaws.com/img/{{ slide.pictureLocation }}" alt="">
+            </div>
             <div class="title">{{ slide.title }}</div>
             <div class="desc hidden-xs">{{ slide.desc }}</div>
         </li>

@@ -38,9 +38,10 @@ slideshowApp.controller('MainContent', ['$http', 'DataService', function($http, 
     };
 
     var init = function() {
-        var localSlides;
+        var localSlides,
+            numberOfSlidesToGet = 100;
 
-        getAllSlides(100).then(function(success) {
+        getAllSlides(numberOfSlidesToGet).then(function(success) {
             console.log('Success: ', success);
             if (success.data) {
                 localSlides = _.map(success.data, function(d) {
@@ -271,6 +272,9 @@ slideshowApp.controller('MainContent', ['$http', 'DataService', function($http, 
             // The end of the list, but the remaining
             // objects in the last array and push
             } else if (i === slideList.length - 1) {
+                s.showing = (i <= interval ? true : false);
+                subList.push(s);
+
                 newList.push({
                     name: s.dateGroup,
                     list: subList
@@ -291,5 +295,3 @@ slideshowApp.controller('MainContent', ['$http', 'DataService', function($http, 
 
     return pub;
 });
-
-

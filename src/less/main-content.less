@@ -41,14 +41,36 @@
             }
 
             img {
+                display: none;
+                margin-left: auto;
+                margin-right: auto;
+            }
+            .image-tile {
                 height: 100%;
                 width: 100%;
+                display: block;
+
+
 
                 @media @tablet {
                     height: 160px;
                     width: 215px;
 
                 }
+
+            }
+
+            .fullscreen-wrapper {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-color: black;
+                z-index: 10;
+            }
+
+            .fullscreen-img {
 
             }
 
