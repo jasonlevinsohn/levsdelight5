@@ -126,7 +126,7 @@ gulp.task('watch', function() {
         console.log(viewsFilename + ' was ' + event.type + ', copying new files...');
     });
 
-    jsWatcher = gulp.watch('src/js/*', ['copy-js']);
+    jsWatcher = gulp.watch('src/js/**/*', ['copy-js']);
     jsWatcher.on('change', function(event) {
         jsFilename = event.path.split('/').pop();
         console.log(jsFilename + ' was ' + event.type + ', copying new files...');

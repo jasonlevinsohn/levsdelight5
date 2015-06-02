@@ -2,6 +2,7 @@
 
 #### Technologies
 * Gulp (Build Tool)
+* Bower (JS Library Package Management)
 * LESS (CSS Preprocessor)
 * AngularJS (Client-side MVC Framework)
 * Twitter Bootstrap (Responsive Design and Widgets)
@@ -10,6 +11,7 @@
     * moment.js - Time Manipulation and Formatting 
 
 
+#### Updates
 * 06.1.2015 
     * Separated Backend from Front-end.  This repo is just static files (JS, CSS, HTML).
     * There is a separate repo named `levsdelight4` which handles the api calls using Django.

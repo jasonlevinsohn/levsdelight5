@@ -6,29 +6,54 @@
         var pub = {};
         var self = this;
 
-        pub.setMonthMap = function(list) {
-            var monthMap;
+        pub.groupMonthMap = function(list) {
 
-            self.monthMap = list;
+            var orderedMap,
+                groupedMap,
+                projectMap = [],
+                groupedMapArray = [];
 
-        };
-
-        pub.getUniqueYears = function() {
-            var uniqueYears,
-                yearsList;
-                
-            yearsList = _.map(self.monthMap, function(d) {
-                return d.fields.year;
+            // Return only the fields object as part of the array.
+            orderedMap = _.map(list, function(l) {
+                return l.fields;
             });
 
-            // Sorted Unique List
-            uniqueYears = _.uniq(yearsList);
-
-            uniqueYears.sort(function(a, b) {
-                return b - a;
+            // Sort the Months forward.
+            orderedMap.sort(function(a, b) {
+                return a.slideshow_id - b.slideshow_id;
             });
 
-            return uniqueYears;
+            // Pull out the project objects.
+            projectMap = _.remove(orderedMap, function(p) {
+                return p.slideshow_id >= 500;
+            });
+
+            // Group all the slideshows by year.
+            groupedMap = _.groupBy(orderedMap, function(m) {
+                return m.year;
+            });
+
+            // Create an array of the grouped objects
+            _.map(groupedMap, function(value, key) {
+                groupedMapArray.push({
+                    name: key,
+                    list: value
+                });
+            });
+
+            // Sort the grouped array descending in years.
+            groupedMapArray.sort(function(a, b) {
+                return b.name - a.name;
+            });
+
+            // Add the Project Group to the end.
+            groupedMapArray.push({
+                name: 'Projects',
+                list: projectMap
+            });
+
+            return groupedMapArray;
+
         };
 
         // Adds a time

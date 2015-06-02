@@ -39,7 +39,7 @@ slideshowApp.controller('MainContent', ['$http', 'DataService', function($http, 
 
     var init = function() {
         var localSlides,
-            numberOfSlidesToGet = 100;
+            numberOfSlidesToGet = 1;
 
         getAllSlides(numberOfSlidesToGet).then(function(success) {
             console.log('Success: ', success);
@@ -139,23 +139,27 @@ slideshowApp.controller('MainContent', ['$http', 'DataService', function($http, 
 
 }])
 .controller('NavigationCtrl', ['$http', '$log', 'DataService', function($http, $log, DataService) {
-    console.log('Navigation Controller');
 
     var monthMapP,
         self = this;
 
-    DataService.getUniqueYears();
+    // DataService.getUniqueYears();
 
     var init = function() {
+
+        self.navCollapsed = true;
+
         monthMapP = $http.get('/api/monthlist/');
 
         monthMapP.then(function(success) {
             var years;
 
             if (success.data) {
-                DataService.setMonthMap(success.data);
-                years = DataService.getUniqueYears();
-                console.log('years: ', years);
+                // DataService.setMonthMap(success.data);
+                // years = DataService.getUniqueYears();
+                // console.log('years: ', years);
+
+                self.groupedMonthList = DataService.groupMonthMap(success.data);
 
             } else {
                 $log.warn("No Month List Data");

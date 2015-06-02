@@ -1,80 +1,46 @@
-<nav class="navbar navbar-default">
+<nav class="navbar navbar-default navbar-fixed-top">
     <div class="container-fluid">
         <!-- <div class="collapse navbar-collapse"> -->
         
         <div class="navbar-header logo">
-            <h2>Lev's Delight</h2>
+            <h2 class="hidden-xs hidden-sm">Llamas On The Loose Farm</h2>
+            <h2 class="hidden-lg hidden-md">L3</h2>
             <h3>by Jason and Natty</h3>
+            <button
+                type="button" class="navbar-toggle collapsed"
+                ng-click="nav.navCollapsed = !nav.navCollapsed">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <!-- <h3 class="select-month-year-container"> -->
+            <!--     <div class="select-month">Select</div> -->
+            <!--     <div class="select-year">Month/Year</div> -->
+            <!-- </h3> -->
         </div>
-        <ul class="nav navbar-nav navbar-right main-navigation">
-            <li class="active dropdown" dropdown on-toggle="toggled(open)">
-                <a href="#" class="dropdown-toggle" dropdown-toggle>2015</a>
-                <ul class="dropdown-menu" role="menu">
-                    <li><a href="">January</a></li>
-                    <li><a href="">February</a></li>
-                </ul>
-            </li>
-            <li><a href="#">2014</a></li>
-            <li><a href="#">2013</a></li>
-            <li><a href="#">2012</a></li>
-            <li><a href="#">2011</a></li>
-            <li><a href="#">2010</a></li>
-            <li><a href="#">Project</a></li>
+        <div class="collapse navbar-collapse" collapse="nav.navCollapsed">
+            <ul class="nav navbar-nav navbar-right main-navigation">
+                <li
+                    class="dropdown"
+                    dropdown
+                    on-toggle="toggled(open)"
+                    ng-repeat="years in nav.groupedMonthList">
+                    <a href="#" class="dropdown-toggle" dropdown-toggle>{{ years.name }}</a>
+                    <ul class="dropdown-menu month-dropdown" role="menu">
+                        <li ng-repeat="month in years.list"><a href="">{{ month.month }}</a></li>
+                        <!-- <li><a href="">February</a></li> -->
+                    </ul>
+                </li>
+                <!-- <li><a href="#">2014</a></li> -->
+                <!-- <li><a href="#">2013</a></li> -->
+                <!-- <li><a href="#">2012</a></li> -->
+                <!-- <li><a href="#">2011</a></li> -->
+                <!-- <li><a href="#">2010</a></li> -->
+                <!-- <li><a href="#">Project</a></li> -->
 
-        </ul>
+            </ul>
+        </div>
         
         <!-- </div> -->
     </div>
-    <!-- <ul id="menu"> -->
-    <!--     <li><a href="#">Projects</a> -->
-    <!--         <ul> -->
-    <!--             <li><a href="/slideshow/2010/buildingOne">Building a Building</a></li> -->
-    <!--             <li><a href="/slideshow/2012/coopOne">Chicken Coop One</a></li> -->
-    <!--             <li><a href="/slideshow/2012/coopTwo">Chicken Coop Two</a></li> -->
-    <!--             <li><a href="/slideshow/2012/fence">Building a Fence</a></li> -->
-    <!--             <li><a href="/slideshow/2012/coon">We got that Coon</a></li> -->
-    <!--         </ul> -->
-    <!--     </li> -->
-    <!--     <li><a href="#">2011</a> -->
-    <!--         <ul> -->
-    <!--             <li><a href="/slideshow/2011/november">November</a></li> -->
-    <!--         </ul> -->
-    <!--     </li> -->
-    <!--     <li><a href="#">2012</a> -->
-    <!--         <ul> -->
-    <!--             <li><a href="/slideshow/2012/january">January</a></li> -->
-    <!--             <li><a href="/slideshow/2012/february">February</a></li> -->
-    <!--             <li><a href="/slideshow/2012/march">March</a></li> -->
-    <!--             <li><a href="/slideshow/2012/april">April</a></li> -->
-    <!--             <li><a href="/slideshow/2012/may">May</a></li> -->
-    <!--             <li><a href="/slideshow/2012/june">June</a></li> -->
-    <!--             <li><a href="/slideshow/2012/july">July</a></li> -->
-    <!--             <li><a href="/slideshow/2012/august">August</a></li> -->
-    <!--             <li><a href="/slideshow/2012/september">September</a></li> -->
-    <!--             <li><a href="/slideshow/2012/october">October</a></li> -->
-    <!--             <li><a href="/slideshow/2012/november">November</a></li> -->
-    <!--             <li><a href="/slideshow/2012/december">December</a></li> -->
-    <!--         </ul> -->
-    <!--     </li> -->
-    <!--     <li><a href="#">2013</a> -->
-    <!--         <ul> -->
-    <!--             <li><a href="/slideshow/2013/january">January</a></li> -->
-    <!--             <li><a href="/slideshow/2013/february">February</a></li> -->
-    <!--             <li><a href="/slideshow/2013/march">March</a></li> -->
-    <!--             <li><a href="/slideshow/2013/april">April</a></li> -->
-    <!--             <li><a href="/slideshow/2013/may">May</a></li> -->
-    <!--             <li><a href="/slideshow/2013/june">June</a></li> -->
-    <!--         </ul> -->
-    <!--     </li> -->
-    <!--     <li><a href="#">2014</a> -->
-    <!--         <ul> -->
-    <!--             <li><a href="/slideshow/2014/january">January</a></li> -->
-    <!--             <li><a href="/slideshow/2014/february">February</a></li> -->
-    <!--             <li><a href="/slideshow/2014/march">March</a></li> -->
-    <!--             <li><a href="/slideshow/2014/april">April</a></li> -->
-    <!--             <li><a href="/slideshow/2014/may">May</a></li> -->
-    <!--             <li><a href="/slideshow/2014/june">June</a></li> -->
-    <!--         </ul> -->
-    <!--     </li> -->
-    <!-- </ul> -->
 </nav>
