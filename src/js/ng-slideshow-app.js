@@ -14,14 +14,35 @@ var slideshowApp = angular.module('slideshow', ['ui.router', 'ui.bootstrap', 'in
                         controller: 'MainContent as mc'
                     }
                 }
+            })
+            .state('slideshow', {
+                url: '/slideshow/{year}/{month}/',
+                views: {
+                    'navigation': {
+                        templateUrl: 'views/navigation.html',
+                        controller: 'NavigationCtrl as nav'
+                    },
+                    'content': {
+                        templateUrl: 'views/content.html',
+                        controller: 'MainContent as mc'
+                    }
+                }
             });
-    }])
-    .run(['$state', function($state) {
-        $state.go('levs-main');
     }]);
+    // .run(['$state', function($state) {
+
+    //     console.log('Initial State: ', $state);
+    //     if ($state.current.url === '/') {
+    //         $state.go('levs-main');
+    //     }
+    // }]);
 
 
-slideshowApp.controller('MainContent', ['$http', 'DataService', function($http, DataService) {
+slideshowApp.controller('MainContent', ['$http', 'DataService', '$stateParams',
+        function($http, DataService, $stateParams) {
+
+    console.log('State Params: ', $stateParams);
+
     var slideshowP,
         allSlides,
         self = this;
@@ -30,6 +51,9 @@ slideshowApp.controller('MainContent', ['$http', 'DataService', function($http, 
     self.monthSlides = [];
     self.orderedSlides = [];
     self.disableScroll = true;
+    self.noContentFound = false;
+    self.slideMonth = "";
+    self.slideYear = "";
 
     // Scoped Functions
     self.doScroll = function() {
@@ -38,37 +62,76 @@ slideshowApp.controller('MainContent', ['$http', 'DataService', function($http, 
     };
 
     var init = function() {
-        var localSlides,
-            numberOfSlidesToGet = 1;
+        var numberOfSlidesToGet = 1;
 
-        getAllSlides(numberOfSlidesToGet).then(function(success) {
-            console.log('Success: ', success);
-            if (success.data) {
-                localSlides = _.map(success.data, function(d) {
-                    return d.fields;
+        // Show the particular month
+        if ($stateParams.year && $stateParams.month) {
+            self.slideMonth = $stateParams.month;
+            self.slideYear = $stateParams.year;
+
+            getMonthSlides($stateParams.year, $stateParams.month)
+                .then(function(success) {
+                    console.log('Month Slide Capture: ', success.data);
+                    if (success.data) {
+                        // If we have slides display them, otherwise display
+                        // no slides found.
+                        if (success.data.length > 0) {
+                            apiSlideDataToUI(success.data);
+                        } else {
+                            self.noContentFound = true;
+                        }
+                    } else {
+                        $log.warn('Error retreiving ' + $stateParams.month + ' slides data');
+                    }
+                }, function(error) {
+                    console.log('Error retreiving slides from the backend: ', error);
                 });
 
-            } else {
-                $log.warn('Error retrieving all slides data');
-            }
+        // Show all the months
+        } else {
 
-            // Add the display time formats to the slides for the UI.
-            localSlides = DataService.addDisplayTime(localSlides);
+            getAllSlides(numberOfSlidesToGet).then(function(success) {
+                console.log('Success: ', success);
+                if (success.data) {
+                    // If we have slides display them, otherwise display
+                    // no slides found.
+                    if (success.data.length > 0) {
+                        apiSlideDataToUI(success.data);
+                    } else {
+                        self.noContentFound = true;
+                    }
+                } else {
+                    $log.warn('Error retrieving all slides data');
+                }
 
-            allSlides = DataService.arrangeForUi(localSlides);
+            }, function(error) {
+                console.log('Error retreiving slides from backend: ', error);
+            });
+        }
 
-            // Add the first couple of header and
-            // set of 12 slide objects to the UI.
-            // The rest will be added as per
-            // infinite scrolling.
-            addSlidesToUi(2);
+    };
 
-            // TODO: Keep this disabled for testing CSS
-            self.disableScroll = true;
+    var apiSlideDataToUI = function(slides) {
+        var localSlides;
 
-        }, function(error) {
-            console.log('Error retreiving slides from backend: ', error);
+        localSlides = _.map(slides, function(d) {
+            return d.fields;
         });
+
+        // Add the display time formats to the slides for the UI.
+        localSlides = DataService.addDisplayTime(localSlides);
+
+        allSlides = DataService.arrangeForUi(localSlides);
+
+        // Add the first couple of header and
+        // set of 12 slide objects to the UI.
+        // The rest will be added as per
+        // infinite scrolling.
+        addSlidesToUi(2);
+
+        // TODO: Keep this disabled for testing CSS
+        self.disableScroll = true;
+
     };
 
     var addSlidesToUi = function(_numberOfObjectsToAdd) {
@@ -85,60 +148,27 @@ slideshowApp.controller('MainContent', ['$http', 'DataService', function($http, 
         }
 
     };
-    // var init = function() {
-    //     var allSlidesP;
-
-    //     slideshowP = $http.get('http://localhost:8000/api/slideshow/2014/march/');
-
-    //     slideshowP.then(function(success) {
-    //         var slideshowData,
-    //             aData,
-    //             formattedData,
-    //             oneSlideshow;
-
-    //         // Parse the data from Django into a Javascript Collection
-
-    //         // TODO: Try using a different $http function other than GET,
-    //         // because we have to use Parse twice.
-    //         slideshowData = JSON.parse(success.data);
-
-    //         oneSlideshow = JSON.parse(slideshowData);
-
-    //         formattedData = buildSlideshowArray(oneSlideshow);
-
-    //         self.monthSlides = formattedData;
-
-    //         console.log('Month Slides', formattedData);
-
-
-    //         }, function(error) {
-    //             console.log('Error: ', error);
-    //         });
-
-    //     };
 
     var getAllSlides = function(number) {
         var allSlidesP;
 
         allSlidesP = $http.get('/api/allslides/' + number + '/');
 
-
         return allSlidesP;
     };
 
-    var buildSlideshowArray = function(slideshowMonthfromDjango) {
-        var arrayOfSlides = [];
-        _.each(slideshowMonthfromDjango, function(slide) {
-            arrayOfSlides.push(slide.fields);
-        });
+    var getMonthSlides = function(year, month) {
+        var monthSlidesP;
 
-        return arrayOfSlides;
+        monthSlidesP = $http.get('/api/slideshow/' + year + '/' + month + '/');
+
+        return monthSlidesP;
     };
 
     init();
 
 }])
-.controller('NavigationCtrl', ['$http', '$log', 'DataService', function($http, $log, DataService) {
+.controller('NavigationCtrl', ['$http', '$log', 'DataService', '$stateParams', function($http, $log, DataService, $stateParams) {
 
     var monthMapP,
         self = this;
@@ -155,9 +185,6 @@ slideshowApp.controller('MainContent', ['$http', 'DataService', function($http, 
             var years;
 
             if (success.data) {
-                // DataService.setMonthMap(success.data);
-                // years = DataService.getUniqueYears();
-                // console.log('years: ', years);
 
                 self.groupedMonthList = DataService.groupMonthMap(success.data);
 

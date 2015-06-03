@@ -1,7 +1,5 @@
 <nav class="navbar navbar-default navbar-fixed-top">
     <div class="container-fluid">
-        <!-- <div class="collapse navbar-collapse"> -->
-        
         <div class="navbar-header logo">
             <h2 class="hidden-xs hidden-sm">Llamas On The Loose Farm</h2>
             <h2 class="hidden-lg hidden-md">L3</h2>
@@ -13,10 +11,6 @@
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
-            <!-- <h3 class="select-month-year-container"> -->
-            <!--     <div class="select-month">Select</div> -->
-            <!--     <div class="select-year">Month/Year</div> -->
-            <!-- </h3> -->
         </div>
         <div class="collapse navbar-collapse" collapse="nav.navCollapsed">
             <ul class="nav navbar-nav navbar-right main-navigation">
@@ -27,20 +21,14 @@
                     ng-repeat="years in nav.groupedMonthList">
                     <a href="#" class="dropdown-toggle" dropdown-toggle>{{ years.name }}</a>
                     <ul class="dropdown-menu month-dropdown" role="menu">
-                        <li ng-repeat="month in years.list"><a href="">{{ month.month }}</a></li>
-                        <!-- <li><a href="">February</a></li> -->
+                        <li ng-repeat="month in years.list">
+                            <a ui-sref="slideshow({year: month.year, month: month.month})">
+                                {{ month.month }}
+                            </a>
+                        </li>
                     </ul>
                 </li>
-                <!-- <li><a href="#">2014</a></li> -->
-                <!-- <li><a href="#">2013</a></li> -->
-                <!-- <li><a href="#">2012</a></li> -->
-                <!-- <li><a href="#">2011</a></li> -->
-                <!-- <li><a href="#">2010</a></li> -->
-                <!-- <li><a href="#">Project</a></li> -->
-
             </ul>
         </div>
-        
-        <!-- </div> -->
     </div>
 </nav>
