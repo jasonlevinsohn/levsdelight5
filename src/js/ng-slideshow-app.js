@@ -41,8 +41,6 @@ var slideshowApp = angular.module('slideshow', ['ui.router', 'ui.bootstrap', 'in
 slideshowApp.controller('MainContent', ['$http', 'DataService', '$stateParams',
         function($http, DataService, $stateParams) {
 
-    console.log('State Params: ', $stateParams);
-
     var slideshowP,
         allSlides,
         self = this;
@@ -57,7 +55,6 @@ slideshowApp.controller('MainContent', ['$http', 'DataService', '$stateParams',
 
     // Scoped Functions
     self.doScroll = function() {
-        console.log('Rn the scroll');
         addSlidesToUi(2);
     };
 
@@ -71,7 +68,6 @@ slideshowApp.controller('MainContent', ['$http', 'DataService', '$stateParams',
 
             getMonthSlides($stateParams.year, $stateParams.month)
                 .then(function(success) {
-                    console.log('Month Slide Capture: ', success.data);
                     if (success.data) {
                         // If we have slides display them, otherwise display
                         // no slides found.
@@ -91,7 +87,6 @@ slideshowApp.controller('MainContent', ['$http', 'DataService', '$stateParams',
         } else {
 
             getAllSlides(numberOfSlidesToGet).then(function(success) {
-                console.log('Success: ', success);
                 if (success.data) {
                     // If we have slides display them, otherwise display
                     // no slides found.
@@ -137,11 +132,9 @@ slideshowApp.controller('MainContent', ['$http', 'DataService', '$stateParams',
     var addSlidesToUi = function(_numberOfObjectsToAdd) {
 
         for (var i = 0; i < _numberOfObjectsToAdd; i++){
-            console.log('All Slides Lenght: ', allSlides.length);
             if (allSlides.length > 0) {
                 var obj = allSlides.shift();
                 self.orderedSlides.push(obj);
-                console.log('Slide: ', obj);
             } else {
                 self.disableScroll = true;
             }

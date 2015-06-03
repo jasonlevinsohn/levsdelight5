@@ -43,7 +43,6 @@
                         imageWrapper.addClass('fullscreen-wrapper');
                         el.addClass('fullscreen-img');
 
-                        console.log('Image Dimensions: ', imageDimensions);
                         if (imageDimensions.isLandscape) {
                             console.log('LANDSCAPE');
                         } else {
