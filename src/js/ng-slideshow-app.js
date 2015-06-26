@@ -55,11 +55,12 @@ slideshowApp.controller('MainContent', ['$http', 'DataService', '$stateParams',
 
     // Scoped Functions
     self.doScroll = function() {
+        console.log('scrolling');
         addSlidesToUi(2);
     };
 
     var init = function() {
-        var numberOfSlidesToGet = 1;
+        var numberOfSlidesToGet = 100;
 
         // Show the particular month
         if ($stateParams.year && $stateParams.month) {
@@ -125,7 +126,7 @@ slideshowApp.controller('MainContent', ['$http', 'DataService', '$stateParams',
         addSlidesToUi(2);
 
         // TODO: Keep this disabled for testing CSS
-        self.disableScroll = true;
+        self.disableScroll = false;
 
     };
 

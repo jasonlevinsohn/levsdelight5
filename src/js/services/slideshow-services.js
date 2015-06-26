@@ -6,6 +6,11 @@
         var pub = {};
         var self = this;
 
+        // Add capitalization function to the String prototype
+        String.prototype.cap = function() {
+            return this.charAt(0).toUpperCase() + this.slice(1);
+        };
+
         pub.groupMonthMap = function(list) {
 
             var orderedMap,
@@ -59,13 +64,24 @@
         // Adds a time
         pub.addDisplayTime = function(slides) {
             var newObj,
-                newList = [];
+                newList = [],
+                parsedLocation,
+                parsedMonth,
+                parsedYear;
 
             _.each(slides, function(s) {
                 s.displayTime = moment(s.pub_date).format('h:mm A');
                 s.displayMobileDate = moment(s.pub_date).format('MM.D.YYYY');
                 s.displayDate = moment(s.pub_date).format('MMM Do, YYYY');
-                s.dateGroup = moment(s.pub_date).format('MMMM YYYY');
+                // s.dateGroup = moment(s.pub_date).format('MMMM YYYY');
+
+                parsedLocation = s.pictureLocation.match(/([a-zA-Z]+)([0-9]+)/);
+                parsedMonth = parsedLocation[1].cap();
+                parsedYear = parsedLocation[2];
+
+                s.dateGroup = parsedMonth + ' ' + parsedYear;
+
+                console.log('Parsed Location: ', s.dateGroup);
 
                 newList.push(s);
             });
