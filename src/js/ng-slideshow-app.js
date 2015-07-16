@@ -123,12 +123,12 @@ slideshowApp.controller('MainContent', ['$http', 'DataService', '$stateParams', 
                 } else {
                     $log.warn('Error retrieving all slides data');
                 }
+                addSlidesToUi(1);
 
             }, function(error) {
                 console.log('Error retreiving slides from backend: ', error);
             });
 
-            addSlidesToUi(1);
         }
 
     };
