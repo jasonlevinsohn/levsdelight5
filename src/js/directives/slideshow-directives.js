@@ -1,7 +1,43 @@
 (function() {
     var app = angular.module('slideshow');
+    var commonUtils = {};
+
+    commonUtils.getDimensions = function(_element) {
+        var obj = {};
+        obj.width = _element.width;
+        obj.height = _element.height;
+        if (_element.width > _element.height) {
+            obj.isLandscape = true;
+        } else {
+            obj.isLandscape = false;
+        }
+        return obj;
+    };
+
+
+    // height: 667px;
+    // width: 130px;
+    //        margin-left: auto;
+    //        margin-right: auto;
 
     app
+    .directive('checkOrientation', function() {
+        return {
+            restrict: 'A',
+            link: function(scope, el, attrs) {
+                var dimensions;
+
+                $(el).load(function() {
+                    dimensions = commonUtils.getDimensions(this);
+                    if (!dimensions.isLandscape) {
+                        el.addClass('portrait');
+                    }
+
+                });
+
+            }
+        };
+    })
     .directive('fullscreenImage', ['$window', function($window) {
         return {
             restrict: 'A',
@@ -10,13 +46,8 @@
                     imageDimensions = {};
 
                 $(el).load(function() {
-                    imageDimensions.width = this.width;
-                    imageDimensions.height = this.height;
-                    if (this.width > this.height) {
-                        imageDimensions.isLandscape = true;
-                    } else {
-                        imageDimensions.isLandscape = false;
-                    }
+                    imageDimensions = commonUtils.getDimensions(this);
+
 
                     // Now that we have the original image
                     // dimensions, we can add the image class.

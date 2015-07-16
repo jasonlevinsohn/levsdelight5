@@ -13,6 +13,11 @@ var slideshowApp = angular.module('slideshow', ['ui.router', 'ui.bootstrap', 'in
                         templateUrl: 'views/content.html',
                         controller: 'MainContent as mc'
                     }
+                },
+                resolve: {
+                    monthMap: function($http) {
+                        return $http.get('/api/monthlist/');
+                    }
                 }
             })
             .state('slideshow', {
@@ -26,6 +31,25 @@ var slideshowApp = angular.module('slideshow', ['ui.router', 'ui.bootstrap', 'in
                         templateUrl: 'views/content.html',
                         controller: 'MainContent as mc'
                     }
+                },
+                resolve: {
+                    monthMap: function($http, $q, $rootScope) {
+                        var p = $q.defer();
+
+                        if ($rootScope.monthList) {
+                            return $rootScope.monthList;
+                        } else {
+                            $http.get('/api/monthlist/')
+                                .then(function(success) {
+                                    $rootScope.monthList = success;
+                                    p.resolve(success);
+                                },
+                                function(error) {
+                                    p.reject('Unable to reteive Month List');
+                                });
+                        }
+                        return p.promise;
+                    }
                 }
             });
     }]);
@@ -38,8 +62,8 @@ var slideshowApp = angular.module('slideshow', ['ui.router', 'ui.bootstrap', 'in
     // }]);
 
 
-slideshowApp.controller('MainContent', ['$http', 'DataService', '$stateParams',
-        function($http, DataService, $stateParams) {
+slideshowApp.controller('MainContent', ['$http', 'DataService', '$stateParams', 'monthMap',
+        function($http, DataService, $stateParams, monthMap) {
 
     var slideshowP,
         allSlides,
@@ -56,7 +80,7 @@ slideshowApp.controller('MainContent', ['$http', 'DataService', '$stateParams',
     // Scoped Functions
     self.doScroll = function() {
         console.log('scrolling');
-        addSlidesToUi(2);
+        addSlidesToUi(1);
     };
 
     var init = function() {
@@ -87,12 +111,12 @@ slideshowApp.controller('MainContent', ['$http', 'DataService', '$stateParams',
         // Show all the months
         } else {
 
-            getAllSlides(numberOfSlidesToGet).then(function(success) {
+            getAllSlides().then(function(success) {
                 if (success.data) {
                     // If we have slides display them, otherwise display
                     // no slides found.
                     if (success.data.length > 0) {
-                        apiSlideDataToUI(success.data);
+                        apiSlideDataToUI(success.data, true);
                     } else {
                         self.noContentFound = true;
                     }
@@ -107,23 +131,30 @@ slideshowApp.controller('MainContent', ['$http', 'DataService', '$stateParams',
 
     };
 
-    var apiSlideDataToUI = function(slides) {
+    var apiSlideDataToUI = function(slides, isAllSlides) {
         var localSlides;
+
 
         localSlides = _.map(slides, function(d) {
             return d.fields;
         });
+
+        console.log('Local Slides: ', localSlides);
+
+        DataService.setMonthMap(monthMap.data, isAllSlides);
 
         // Add the display time formats to the slides for the UI.
         localSlides = DataService.addDisplayTime(localSlides);
 
         allSlides = DataService.arrangeForUi(localSlides);
 
+        console.log('All Slides: ', allSlides.length);
+
         // Add the first couple of header and
         // set of 12 slide objects to the UI.
         // The rest will be added as per
         // infinite scrolling.
-        addSlidesToUi(2);
+        // addSlidesToUi(2);
 
         // TODO: Keep this disabled for testing CSS
         self.disableScroll = false;
@@ -140,13 +171,21 @@ slideshowApp.controller('MainContent', ['$http', 'DataService', '$stateParams',
                 self.disableScroll = true;
             }
         }
+        console.log('Ordered Slides: ', self.orderedSlides);
 
     };
 
     var getAllSlides = function(number) {
         var allSlidesP;
 
-        allSlidesP = $http.get('/api/allslides/' + number + '/');
+        // Retreive Subset
+        if (number) {
+            allSlidesP = $http.get('/api/allslides/' + number + '/');
+        // Get all the slides listed
+        } else {
+            allSlidesP = $http.get('/api/allslides/');
+
+        }
 
         return allSlidesP;
     };
@@ -162,7 +201,9 @@ slideshowApp.controller('MainContent', ['$http', 'DataService', '$stateParams',
     init();
 
 }])
-.controller('NavigationCtrl', ['$http', '$log', 'DataService', '$stateParams', function($http, $log, DataService, $stateParams) {
+.controller('NavigationCtrl', ['$http', '$log', 'DataService', '$stateParams', 'monthMap', function($http, $log, DataService, $stateParams, monthMap) {
+
+    console.log('MonthMap: ', monthMap);
 
     var monthMapP,
         self = this;
@@ -173,19 +214,20 @@ slideshowApp.controller('MainContent', ['$http', 'DataService', '$stateParams',
 
         self.navCollapsed = true;
 
-        monthMapP = $http.get('/api/monthlist/');
+        // monthMapP = $http.get('/api/monthlist/');
 
-        monthMapP.then(function(success) {
-            var years;
+        // monthMapP.then(function(success) {
+        //     var years;
 
-            if (success.data) {
+        if (monthMap.data) {
 
-                self.groupedMonthList = DataService.groupMonthMap(success.data);
+            self.groupedMonthList = DataService.groupMonthMap(monthMap.data);
+            console.log('Grouped Month List: ', self.groupedMonthList);
 
-            } else {
-                $log.warn("No Month List Data");
-            }
-        });
+        } else {
+            $log.warn("No Month List Data");
+        }
+    // });
 
     };
 
@@ -197,4 +239,14 @@ slideshowApp.controller('MainContent', ['$http', 'DataService', '$stateParams',
 
     init();
 
-}]);
+}])
+.filter('capitalize', function() {
+    // convert string to capitalize
+    return function(input) {
+        if (input) {
+            return input.charAt(0).toUpperCase() + input.slice(1);
+        } else {
+            return input;
+        }
+    };
+});

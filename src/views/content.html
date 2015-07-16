@@ -9,15 +9,15 @@
     <!-- </ul> -->
     <ul class="row"
         ng-repeat="group in mc.orderedSlides">
-        <li class="slide-header col-xs-12" ng-if="group.header">{{ group.name }}</li>
+        <li class="slide-header col-xs-12">{{ group.month | capitalize }} {{ group.year }}</li>
         <li
-            ng-if="!group.header"
-            class="col-xs-6 col-sm-4 slide-tile"
-            ng-repeat="slide in group.list">
+            class="col-xs-6 col-sm-4 col-md-3 slide-tile"
+            ng-repeat="slide in group.monthsSlides">
             <div class="date">{{ slide.displayDate }} </div>
             <div class="image-wrapper">
                 <img
                     fullscreen-image
+                    check-orientation
                     class="img-rounded"
                     ng-src="http://levsdelight.s3.amazonaws.com/img/{{ slide.pictureLocation }}" alt="">
             </div>
