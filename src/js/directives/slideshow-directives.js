@@ -74,12 +74,6 @@
                         imageWrapper.addClass('fullscreen-wrapper');
                         el.addClass('fullscreen-img');
 
-                        if (imageDimensions.isLandscape) {
-                            console.log('LANDSCAPE');
-                        } else {
-                            console.log('PORTRAIT');
-                        }
-
                         if ($(window).width() > $(window).height()) {
                             // The window is landscaped.  Show Landscape pictures
                             // as they are, show portrait pictures based on window

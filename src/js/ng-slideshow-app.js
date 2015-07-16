@@ -139,16 +139,12 @@ slideshowApp.controller('MainContent', ['$http', 'DataService', '$stateParams', 
             return d.fields;
         });
 
-        console.log('Local Slides: ', localSlides);
-
         DataService.setMonthMap(monthMap.data, isAllSlides);
 
         // Add the display time formats to the slides for the UI.
         localSlides = DataService.addDisplayTime(localSlides);
 
         allSlides = DataService.arrangeForUi(localSlides);
-
-        console.log('All Slides: ', allSlides.length);
 
         // Add the first couple of header and
         // set of 12 slide objects to the UI.
@@ -171,8 +167,6 @@ slideshowApp.controller('MainContent', ['$http', 'DataService', '$stateParams', 
                 self.disableScroll = true;
             }
         }
-        console.log('Ordered Slides: ', self.orderedSlides);
-
     };
 
     var getAllSlides = function(number) {
@@ -199,11 +193,10 @@ slideshowApp.controller('MainContent', ['$http', 'DataService', '$stateParams', 
     };
 
     init();
+    addSlidesToUi(1);
 
 }])
 .controller('NavigationCtrl', ['$http', '$log', 'DataService', '$stateParams', 'monthMap', function($http, $log, DataService, $stateParams, monthMap) {
-
-    console.log('MonthMap: ', monthMap);
 
     var monthMapP,
         self = this;
@@ -222,7 +215,6 @@ slideshowApp.controller('MainContent', ['$http', 'DataService', '$stateParams', 
         if (monthMap.data) {
 
             self.groupedMonthList = DataService.groupMonthMap(monthMap.data);
-            console.log('Grouped Month List: ', self.groupedMonthList);
 
         } else {
             $log.warn("No Month List Data");
