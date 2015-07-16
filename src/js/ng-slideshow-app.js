@@ -127,6 +127,8 @@ slideshowApp.controller('MainContent', ['$http', 'DataService', '$stateParams', 
             }, function(error) {
                 console.log('Error retreiving slides from backend: ', error);
             });
+
+            addSlidesToUi(1);
         }
 
     };
@@ -193,7 +195,6 @@ slideshowApp.controller('MainContent', ['$http', 'DataService', '$stateParams', 
     };
 
     init();
-    addSlidesToUi(1);
 
 }])
 .controller('NavigationCtrl', ['$http', '$log', 'DataService', '$stateParams', 'monthMap', function($http, $log, DataService, $stateParams, monthMap) {
