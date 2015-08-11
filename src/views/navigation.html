@@ -3,7 +3,9 @@
         <div class="navbar-header logo">
             <h2 ui-sref="levs-main" class="hidden-xs hidden-sm">Llamas On The Loose Farm</h2>
             <h2 ui-sref="levs-main" class="hidden-lg hidden-md">L2</h2>
-            <h3>by Jason and Natty</h3>
+            <h3 class="login" ng-if="!nav.userIsAuthentic" ng-click="nav.openLoginModal()">by Jason and Natty</h3>
+            <h3 ng-if="nav.userIsAuthentic">by Jason and Natty</h3>
+            
             <button
                 type="button" class="navbar-toggle collapsed"
                 ng-click="nav.navCollapsed = !nav.navCollapsed">
@@ -30,5 +32,12 @@
                 </li>
             </ul>
         </div>
+    </div>
+</nav>
+<nav
+    ng-show="nav.userIsAuthentic"
+    class="navbar navbar-default navbar-fixed-top admin-navbar">
+    <div class="container-fluid">
+        <p class="navbar-text">Greetings, {{ nav.theSetUser }}</p>
     </div>
 </nav>

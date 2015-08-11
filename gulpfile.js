@@ -35,7 +35,7 @@ gulp.task('copy-index', function() {
 // Copy Angular Views
 gulp.task('copy-views', function() {
 
-    gulp.src('src/views/*')
+    gulp.src('src/views/**/*')
         .pipe(cleanDest('build/views'))
         .pipe(gulp.dest('build/views'))
         .pipe(livereload());
@@ -120,7 +120,7 @@ gulp.task('watch', function() {
     });
 
     //Angular Views Watcher
-    viewsWatcher = gulp.watch('src/views/*', ['copy-views']);
+    viewsWatcher = gulp.watch('src/views/**/*', ['copy-views']);
     viewsWatcher.on('change', function(event) {
         viewsFilename = event.path.split('/').pop();
         console.log(viewsFilename + ' was ' + event.type + ', copying new files...');

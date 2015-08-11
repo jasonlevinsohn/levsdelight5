@@ -29,3 +29,6 @@
       from just using a regex to incorporating the monthmap.
       Much more stable this way.
     * Clicking title takes you to the main page
+
+* 8.10.2015
+    * Base Authentication
