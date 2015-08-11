@@ -1,6 +1,8 @@
 <div
     class="slides-wrapper container-fluid"
+    ng-class="{'admin-navbar-showing': mc.userIsAuthentic}"
     ng-if="!mc.noContentFound"
+
     infinite-scroll="mc.doScroll()"
     infinite-scroll-distance="1"
     infinite-scroll-disabled="mc.disableScroll">

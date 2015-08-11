@@ -1,0 +1,26 @@
+<div class="modal-body login-modal">
+    <header>Login</header>
+
+    <section class="content">
+        <div class="form-group">
+            <label for="id-username">Username</label>
+            <input ng-model="login.l2Username" class="form-control" type="text" id="id-username">
+        </div>
+        <div class="form-group">
+            <label for="id-password">Password</label>
+            <input
+                ng-model="login.l2Password"
+                ng-focus="login.userPassInvalid = false"
+                class="form-control"
+                type="password"
+                id="id-password">
+        </div>
+        <div ng-show="login.userPassInvalid" class="invalid-userpass">Invalid User/Pass.  Please try again.</div>
+
+    </section>
+    <footer>
+        <button type="button" class="btn" ng-click="$dismiss()">Cancel</button>
+        <button type="button" class="btn btn-success" ng-click="login.login()">Login</button>
+    </footer>
+
+</div>

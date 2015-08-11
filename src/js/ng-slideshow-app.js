@@ -1,5 +1,18 @@
-var slideshowApp = angular.module('slideshow', ['ui.router', 'ui.bootstrap', 'infinite-scroll'])
-    .config(['$stateProvider', '$urlRouterProvider', function($stateProvider, $urlRouterProvider) {
+var slideshowApp = angular.module('slideshow', [
+        'ui.router',
+        'ui.bootstrap',
+        'infinite-scroll',
+        'ngResource'])
+    .config([
+            '$stateProvider',
+            '$urlRouterProvider',
+            '$httpProvider', function($stateProvider, $urlRouterProvider, $httpProvider) {
+
+        // Django and Angular support csrf tokens.
+        // Tell Angular which cookie to add to what header.
+        $httpProvider.defaults.xsrfCookieName = 'csrftoken';
+        $httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken';
+
         $urlRouterProvider.otherwise('/');
         $stateProvider
             .state('levs-main', {
@@ -62,8 +75,14 @@ var slideshowApp = angular.module('slideshow', ['ui.router', 'ui.bootstrap', 'in
     // }]);
 
 
-slideshowApp.controller('MainContent', ['$http', 'DataService', '$stateParams', 'monthMap',
-        function($http, DataService, $stateParams, monthMap) {
+slideshowApp.controller('MainContent', [
+        '$rootScope',
+        '$http',
+        'DataService',
+        '$stateParams',
+        'monthMap',
+        'AuthFactory',
+        function($rootScope, $http, DataService, $stateParams, monthMap, AuthFactory) {
 
     var slideshowP,
         allSlides,
@@ -76,6 +95,7 @@ slideshowApp.controller('MainContent', ['$http', 'DataService', '$stateParams', 
     self.noContentFound = false;
     self.slideMonth = "";
     self.slideYear = "";
+    self.userIsAuthentic = false;
 
     // Scoped Functions
     self.doScroll = function() {
@@ -84,6 +104,9 @@ slideshowApp.controller('MainContent', ['$http', 'DataService', '$stateParams', 
     };
 
     var init = function() {
+
+        checkAuthentication();
+
         var numberOfSlidesToGet = 100;
 
         // Show the particular month
@@ -194,24 +217,59 @@ slideshowApp.controller('MainContent', ['$http', 'DataService', '$stateParams', 
         return monthSlidesP;
     };
 
+    var checkAuthentication = function() {
+
+        // Set Event Handler for when the user logs in.
+        $rootScope.$on('AUTH_EVENT', function(e, data) {
+            if (data !== 'anonymous')
+                self.userIsAuthentic = true;
+        });
+
+        // Check if the user is logged in
+        AuthFactory.isAuthenticated()
+            .then(function(success) {
+
+                if (success) {
+                    self.userIsAuthentic = true;
+                } else {
+                    self.userIsAuthentic = false;
+                }
+            }, function(error) {
+                $log.error(error);
+            });
+
+    };
+
     init();
 
 }])
-.controller('NavigationCtrl', ['$http', '$log', 'DataService', '$stateParams', 'monthMap', function($http, $log, DataService, $stateParams, monthMap) {
+.controller('NavigationCtrl', [
+        '$http',
+        '$log',
+        'DataService',
+        '$stateParams',
+        'monthMap',
+        'AuthFactory',
+        '$modal',
+        '$rootScope',
+        '$scope',
+        function($http, $log, DataService, $stateParams, monthMap, AuthFactory, $modal, $rootScope, $scope) {
+
 
     var monthMapP,
         self = this;
+    
 
-    // DataService.getUniqueYears();
+    // Scoped Variables
+    self.showFailedLogin = false;
+    self.userIsAuthentic = false;
+    self.navCollapsed = true;
+    self.theSetUser = undefined;
+
 
     var init = function() {
 
-        self.navCollapsed = true;
-
-        // monthMapP = $http.get('/api/monthlist/');
-
-        // monthMapP.then(function(success) {
-        //     var years;
+        checkAuthentication();
 
         if (monthMap.data) {
 
@@ -224,15 +282,96 @@ slideshowApp.controller('MainContent', ['$http', 'DataService', '$stateParams', 
 
     };
 
-    // Builds a list of the years for which pictures have been
-    // accumulated.
-    var buildYearsList = function(list) {
+    // Angular does not detect auto-fill or auto-complete. If the browser
+    // autofills 'username', Angular will be unaware of this and think
+    // the $scope.username is blank. To workaround this we use the
+    // autofill-event polyfill.
+    $('#id_auth_form input').checkAndTriggerAutoFillEvent();
+
+    self.logout = function() {
+        AuthFactory.auth.logout(function() {
+            self.user = undefined;
+        });
+    };
+
+    self.openLoginModal = function() {
+
+        var modalInstance = $modal.open({
+            templateUrl: 'views/modals/login.html',
+            controller: 'LoginModalCtrl as login',
+            scope: $scope
+        });
+
+        modalInstance.result.then(function(result) {
+            if (result !== 'anonymous') {
+                self.userIsAuthentic = true;
+                self.theSetUser = result;
+                $rootScope.$emit('AUTH_EVENT', result);
+            } else {
+                self.userIsAuthentic = false;
+                self.theSetUser = result;
+            }
+        });
+
+    };
+
+    var checkAuthentication = function() {
+        // Check if the user is logged in
+        console.log('Checking User Authentication...');
+        AuthFactory.isAuthenticated()
+            .then(function(success) {
+
+                self.theSetUser = success;
+                if (success) {
+                    self.userIsAuthentic = true;
+                } else {
+                    self.userIsAuthentic = false;
+                }
+            }, function(error) {
+                $log.error(error);
+            });
 
     };
 
     init();
 
 }])
+.controller('LoginModalCtrl', function($modalInstance, AuthFactory) {
+    var self = this;
+    console.log('ModalInstance');
+    console.log($modalInstance);
+
+    self.userPassInvalid = false;
+
+    var getCredentials = function() {
+        return {
+            username: self.l2Username,
+            password: self.l2Password
+        };
+    };
+
+    self.login = function() {
+        AuthFactory.auth.login(getCredentials())
+            .$promise
+            .then(function(data) {
+                // User/Pass is good
+                // self.user = data.username;
+                // $modalInstance.close(data.username);
+                if (data.code === 0 && data.status === 'active') {
+                    AuthFactory.setAuthStatus(data.user);
+                    $modalInstance.close(data.user);
+                } else if (data.code === 2 && data.status === 'incorrect_password') {
+                    self.userPassInvalid = true;
+                }
+            })
+            .catch(function(fail) {
+                // Incorrect user/pass
+                self.userPassInvalid = true;
+                console.log('Login Failure. :( | ', fail);
+            });
+    };
+
+})
 .filter('capitalize', function() {
     // convert string to capitalize
     return function(input) {
@@ -242,4 +381,75 @@ slideshowApp.controller('MainContent', ['$http', 'DataService', '$stateParams', 
             return input;
         }
     };
+})
+// ############### Authentication Section - BEGIN ############### 
+.factory('AuthFactory', function($resource, $q) {
+    var self = this,
+        pub = {};
+
+    self.isLoggedIn = undefined; 
+
+    function add_auth_header(data, headersGetter) {
+        // Credentials must be base64 encoded per HTTP spec
+        var headers = headersGetter();
+        headers['Authorization'] = ('Basic ' + btoa(data.username + ':' + data.password));
+    }
+
+    // Here be the endpoints to call.
+    // We need to escape trailing dashes.  Angular strips unescaped trailing slashes.
+    // Django redirects URL's to ending slashes for SEO reasons. Auth Post can not be
+    // sent with a redirect.  We want Angular to keep the slashes.
+    pub = {
+        auth: $resource('/api/auth\\/', {}, {
+            login: {
+                method: 'POST',
+                transformRequest: add_auth_header
+            },
+            logout: {
+                method: 'DELETE'
+            },
+            checkAuthentication: {
+                method: 'GET'
+            }
+        }),
+        users: $resource('/api/users\\/', {}, {
+            create: {
+                method: 'POST'
+            }
+        }),
+        isAuthenticated: function() {
+            var d = $q.defer();
+
+            // First we check if we have called this API already,
+            // and use the values returned.  Otherwise call the api.
+            if (self.isLoggedIn) {
+                if (self.isLoggedIn !== 'anonymous') {
+                    d.resolve(self.isLoggedIn);
+                } else {
+                    d.resolve(false);
+                }
+            } else {
+                pub.auth.checkAuthentication()
+                    .$promise
+                    .then(function(data) {
+                        if (data.user !== 'anonymous') {
+                            d.resolve(data.user);
+                        } else {
+                            d.resolve(false);
+                        }
+                    }, function(error) {
+                        d.reject('Error retreiving Auth Status: ', error);
+                    });
+            }
+            return d.promise;
+
+        },
+        setAuthStatus: function(_isAuth) {
+            self.isLoggedIn = _isAuth;
+        }
+    };
+
+    return pub;
+
 });
+// ############### Authentication Section - END ############### 
