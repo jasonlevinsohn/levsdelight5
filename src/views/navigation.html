@@ -38,6 +38,17 @@
     ng-show="nav.userIsAuthentic"
     class="navbar navbar-default navbar-fixed-top admin-navbar">
     <div class="container-fluid">
-        <p class="navbar-text">Greetings, {{ nav.theSetUser }}</p>
+        <div class="left-block pull-left">
+            <p class="navbar-text">Greetings, {{ nav.theSetUser }}</p>
+        </div>
+        <div class="right-block pull-right">
+            <button
+                type="button"
+                class="btn btn-default navbar-btn"
+                ng-click="nav.logout()">
+                Logout
+            </button>
+        
+        </div>
     </div>
 </nav>

@@ -221,8 +221,12 @@ slideshowApp.controller('MainContent', [
 
         // Set Event Handler for when the user logs in.
         $rootScope.$on('AUTH_EVENT', function(e, data) {
-            if (data !== 'anonymous')
+            if (data !== 'anonymous') {
                 self.userIsAuthentic = true;
+            } else {
+                self.userIsAuthentic = false;
+            }
+
         });
 
         // Check if the user is logged in
@@ -290,7 +294,9 @@ slideshowApp.controller('MainContent', [
 
     self.logout = function() {
         AuthFactory.auth.logout(function() {
-            self.user = undefined;
+            self.theSetUser = undefined;
+            self.userIsAuthentic = false;
+            $rootScope.$emit('AUTH_EVENT', 'anonymous');
         });
     };
 
