@@ -110,7 +110,44 @@
                 });
             }
         };
-    }]);
+    }])
+    .directive('l2Packery', function($timeout, $window) {
+        return {
+            restrict: 'A',
+            link: function(scope, el, attrs, ctrl) {
+                var packedGroup,
+                    foundGroup;
+                console.log('Packery Loaded');
+                window.myEl = el;
+
+
+                $timeout(function() {
+                    packedGroup = el.packery({
+                        gutter: 0 
+                    });
+
+                    foundGroup = packedGroup.find('.slide-tile');
+
+                    foundGroup.each(function(i, itemElem) {
+                        var sWidth, sHeight, draggie;
+
+                        sWidth = $(itemElem).outerWidth();
+                        sHeight = $(itemElem).outerHeight();
+
+                        draggie = new Draggabilly(itemElem, {
+                            grid: [sWidth, sHeight]
+                        });
+
+                        packedGroup.packery('bindDraggabillyEvents', draggie);
+
+                    });
+                });
+
+
+
+            }
+        };
+    });
     
 
 })();
