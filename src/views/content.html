@@ -12,10 +12,20 @@
     <ul class="row"
         ng-repeat="group in mc.orderedSlides">
         <li class="slide-header col-xs-12">{{ group.month | capitalize }} {{ group.year }}</li>
-        <div l2-packery class="packery-container">
+        <div l2-packery="mc.arrange" class="packery-container">
             <li
                 class="col-xs-6 col-sm-4 col-md-3 slide-tile"
+                data-order="{{ slide.order_id }}"
+                data-pk=" {{ slide.pk }}"
                 ng-repeat="slide in group.monthsSlides">
+                <div
+                    class="arrange-button"
+                    ng-if="mc.arrange">
+                    <span
+                        class="glyphicon glyphicon-move"
+                        aria-hidden="true">
+                    </span> 
+                </div>
                 <div class="date">{{ slide.displayDate }} </div>
                 <div class="image-wrapper">
                     <!-- <img -->

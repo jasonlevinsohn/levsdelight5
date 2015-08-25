@@ -114,37 +114,117 @@
     .directive('l2Packery', function($timeout, $window) {
         return {
             restrict: 'A',
+            scope: {
+                l2Packery: '='
+            },
             link: function(scope, el, attrs, ctrl) {
+
                 var packedGroup,
-                    foundGroup;
-                console.log('Packery Loaded');
-                window.myEl = el;
+                    foundGroup,
+                    draggieList = [],
+                    packeryObject,
+                    orderSet = false;
+
+                var toggleArrange = function() {
+
+                    $timeout(function() {
+
+                        if (scope.l2Packery) {
+                            packedGroup = el.packery({
+                                gutter: 0 
+                            });
+
+                            window.packed = packedGroup;
+
+                            foundGroup = packedGroup.find('.slide-tile');
+
+                            foundGroup.each(function(i, itemElem) {
+                                var sWidth, sHeight, draggie;
+
+                                sWidth = $(itemElem).outerWidth();
+                                sHeight = $(itemElem).outerHeight();
+
+                                draggie = new Draggabilly(itemElem, {
+                                    grid: [sWidth, sHeight]
+                                });
+
+                                draggieList.push(draggie);
+
+                                packedGroup.packery('bindDraggabillyEvents', draggie);
 
 
-                $timeout(function() {
-                    packedGroup = el.packery({
-                        gutter: 0 
+
+                                // Bind each Slide item to the drag end event to reorder
+                                // them.
+                                // draggie.on('dragEnd', function(e, pointer) {
+                                //     console.log('Drag has ended');
+                                //     console.log('Event: ', e);
+                                //     console.log('Pointer: ', pointer);
+                                //     console.log('Packed Group: ', packedGroup);
+                                // });
+                                //
+                                if ($(itemElem).data('order') !== 0) {
+                                    orderSet = true;
+                                }
+
+                            });
+
+                            packedGroup.on('layoutComplete', function(event, layoutItems) {
+                                window.layedout = layoutItems;
+                                _.each(layoutItems, function(item, i) {
+                                    // $(item.element).attr('data-order', i+1);
+                                    // $(item.element).data('order', i+1);
+                                    console.log('Text: ', $(item.element).text().replace(' ', ''));
+                                    console.log('Item: ', $(item.element).data('order'));
+
+                                });
+                            });
+
+                            packedGroup.on('dragItemPositioned', function(event, draggedItem) {
+                                console.log('Dragged Item: ', draggedItem);
+
+                            });
+
+                            if (orderSet) {
+                                console.log('The order for this group has been set.');
+                            } else {
+                                console.log('The order for this group has NOT been set.');
+
+                            }
+
+                            // Set the order of the items to defaults if has the order has never been set.
+                            if (!orderSet) {
+                                foundGroup.each(function(i, itemElem) {
+                                    $(itemElem).attr('data-order', i+1);
+                                    $(itemElem).data('order', i+1);
+                                });
+                            }
+                            
+
+                        } else {
+                            if (packedGroup !== undefined) {
+                                _.each(draggieList, function(drag) {
+                                    var slide;
+                                    // console.log('Drag: ', drag);
+                                    slide = drag.$element;
+
+                                    console.log('Element: ', slide.data('order'));
+                                    drag.destroy();
+                                });
+                                el.packery('destroy');
+                            }
+                        }
+
                     });
 
-                    foundGroup = packedGroup.find('.slide-tile');
+                };
 
-                    foundGroup.each(function(i, itemElem) {
-                        var sWidth, sHeight, draggie;
+                scope.$watch('l2Packery', function(n, o) {
+                    if (n !== o) {
+                        toggleArrange();
+                    }
 
-                        sWidth = $(itemElem).outerWidth();
-                        sHeight = $(itemElem).outerHeight();
-
-                        draggie = new Draggabilly(itemElem, {
-                            grid: [sWidth, sHeight]
-                        });
-
-                        packedGroup.packery('bindDraggabillyEvents', draggie);
-
-                    });
                 });
-
-
-
             }
         };
     });

@@ -96,18 +96,21 @@ slideshowApp.controller('MainContent', [
     self.slideMonth = "";
     self.slideYear = "";
     self.userIsAuthentic = false;
+    self.arrange = false;
 
     // Scoped Functions
     self.doScroll = function() {
-        console.log('scrolling');
         addSlidesToUi(1);
     };
 
     var init = function() {
 
         checkAuthentication();
+        watchArrange();
 
         var numberOfSlidesToGet = 100;
+
+        window.stateP = $stateParams;
 
         // Show the particular month
         if ($stateParams.year && $stateParams.month) {
@@ -136,6 +139,7 @@ slideshowApp.controller('MainContent', [
 
             getAllSlides().then(function(success) {
                 if (success.data) {
+                    console.log('Success Data: ', success);
                     // If we have slides display them, otherwise display
                     // no slides found.
                     if (success.data.length > 0) {
@@ -161,7 +165,10 @@ slideshowApp.controller('MainContent', [
 
 
         localSlides = _.map(slides, function(d) {
-            return d.fields;
+            var obj;
+            obj = d.fields;
+            obj.pk = d.pk;
+            return obj;
         });
 
         DataService.setMonthMap(monthMap.data, isAllSlides);
@@ -244,6 +251,17 @@ slideshowApp.controller('MainContent', [
 
     };
 
+    var watchArrange = function() {
+        $rootScope.$on('nav:arrange', function(e, data) {
+            console.log('Arrange has been toggled elseware');
+            console.log('Event: ', e);
+            console.log('Data: ', data);
+            console.log('State: ', $stateParams);
+            self.arrange = data;
+        });
+
+    };
+
     init();
 
 }])
@@ -269,7 +287,7 @@ slideshowApp.controller('MainContent', [
     self.userIsAuthentic = false;
     self.navCollapsed = true;
     self.theSetUser = undefined;
-
+    self.arrange = false;
 
     var init = function() {
 
@@ -282,7 +300,8 @@ slideshowApp.controller('MainContent', [
         } else {
             $log.warn("No Month List Data");
         }
-    // });
+
+        $stateParams.arrange = self.arrange;
 
     };
 
@@ -291,6 +310,15 @@ slideshowApp.controller('MainContent', [
     // the $scope.username is blank. To workaround this we use the
     // autofill-event polyfill.
     $('#id_auth_form input').checkAndTriggerAutoFillEvent();
+
+
+    // ############### Scoped Functions - BEGIN ###############
+
+    self.toggleArrange = function() {
+        self.arrange = !self.arrange;
+        $rootScope.$emit('nav:arrange', self.arrange);
+        $stateParams.arrange = self.arrange;
+    };
 
     self.logout = function() {
         AuthFactory.auth.logout(function() {
@@ -320,6 +348,8 @@ slideshowApp.controller('MainContent', [
         });
 
     };
+
+    // ############### Scoped Functions - END ############### 
 
     var checkAuthentication = function() {
         // Check if the user is logged in
