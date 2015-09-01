@@ -111,7 +111,7 @@
             }
         };
     }])
-    .directive('l2Packery', function($timeout, $window) {
+    .directive('l2Packery', function($timeout, $window, UpdateSlidesService) {
         return {
             restrict: 'A',
             scope: {
@@ -127,14 +127,14 @@
 
                 var toggleArrange = function() {
 
+                    var itemOrderMap = [];
+
                     $timeout(function() {
 
                         if (scope.l2Packery) {
                             packedGroup = el.packery({
                                 gutter: 0 
                             });
-
-                            window.packed = packedGroup;
 
                             foundGroup = packedGroup.find('.slide-tile');
 
@@ -152,36 +152,10 @@
 
                                 packedGroup.packery('bindDraggabillyEvents', draggie);
 
-
-
-                                // Bind each Slide item to the drag end event to reorder
-                                // them.
-                                // draggie.on('dragEnd', function(e, pointer) {
-                                //     console.log('Drag has ended');
-                                //     console.log('Event: ', e);
-                                //     console.log('Pointer: ', pointer);
-                                //     console.log('Packed Group: ', packedGroup);
-                                // });
-                                //
+                                // Tests if the order has ever been set for this group.
                                 if ($(itemElem).data('order') !== 0) {
                                     orderSet = true;
                                 }
-
-                            });
-
-                            packedGroup.on('layoutComplete', function(event, layoutItems) {
-                                window.layedout = layoutItems;
-                                _.each(layoutItems, function(item, i) {
-                                    // $(item.element).attr('data-order', i+1);
-                                    // $(item.element).data('order', i+1);
-                                    console.log('Text: ', $(item.element).text().replace(' ', ''));
-                                    console.log('Item: ', $(item.element).data('order'));
-
-                                });
-                            });
-
-                            packedGroup.on('dragItemPositioned', function(event, draggedItem) {
-                                console.log('Dragged Item: ', draggedItem);
 
                             });
 
@@ -199,16 +173,57 @@
                                     $(itemElem).data('order', i+1);
                                 });
                             }
-                            
 
                         } else {
                             if (packedGroup !== undefined) {
+
+                                // Check if the order of the elements is different from when we started
+                                // arranging.  If so, put them in a list and send them to the server to be updated.
+                                _.each(packedGroup.packery('getItemElements'), function(item, i) {
+                                    var oldOrder,
+                                        newOrder;
+
+                                    oldOrder = $(item).data('order');
+                                    newOrder = i+1;
+
+                                    // If the order has been set before, just
+                                    // set the ones changed by the user.  Otherwise,
+                                    // set them all in the database if
+                                    // this is the first time.
+                                    if (orderSet) {
+                                        if (oldOrder !== newOrder) {
+                                            itemOrderMap.push({
+                                                id: $(item).data('pk'),
+                                                oldOrder: oldOrder,
+                                                newOrder: newOrder
+                                            });
+
+                                        }
+                                    } else {
+                                        itemOrderMap.push({
+                                            id: $(item).data('pk'),
+                                            oldOrder: oldOrder,
+                                            newOrder: newOrder
+                                        });
+                                    }
+                                });
+
+
+                                console.log('itemOrderMap: ', itemOrderMap);
+
+                                // Send re-order slides to the server
+                                UpdateSlidesService.reorderSlides(itemOrderMap)
+                                    .then(function(success) {
+                                        console.log(success);
+                                    }, function(error) {
+                                        console.log(error);
+                                    });
+
                                 _.each(draggieList, function(drag) {
                                     var slide;
                                     // console.log('Drag: ', drag);
                                     slide = drag.$element;
 
-                                    console.log('Element: ', slide.data('order'));
                                     drag.destroy();
                                 });
                                 el.packery('destroy');

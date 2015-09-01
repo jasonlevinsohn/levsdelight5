@@ -2,6 +2,16 @@
     var app = angular.module('slideshow');
 
     app
+    .service('UpdateSlidesService', function($http) {
+
+        var pub = {};
+        pub.reorderSlides = reorderSlides;
+
+        function reorderSlides(slideObj) {
+            return $http.post('/api/reorder/', slideObj);
+        }
+        return pub;
+    })
     .service('DataService', function() {
         var pub = {};
         var self = this;
