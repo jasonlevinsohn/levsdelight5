@@ -211,13 +211,19 @@
 
                                 console.log('itemOrderMap: ', itemOrderMap);
 
-                                // Send re-order slides to the server
-                                UpdateSlidesService.reorderSlides(itemOrderMap)
-                                    .then(function(success) {
-                                        console.log(success);
-                                    }, function(error) {
-                                        console.log(error);
-                                    });
+                                // Send re-order slides to the server if there have
+                                // been any items reordered
+                                if (itemOrderMap.length > 0) {
+                                    UpdateSlidesService.addReorder();
+
+                                    UpdateSlidesService.reorderSlides(itemOrderMap)
+                                        .then(function(success) {
+                                            UpdateSlidesService.resolveReorder();
+                                            console.log(success);
+                                        }, function(error) {
+                                            console.log(error);
+                                        });
+                                }
 
                                 _.each(draggieList, function(drag) {
                                     var slide;

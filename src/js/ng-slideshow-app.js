@@ -107,11 +107,14 @@ slideshowApp.controller('MainContent', [
 
         checkAuthentication();
         watchArrange();
+        watchReorderCompelete();
 
-        var numberOfSlidesToGet = 100;
+        // var numberOfSlidesToGet = 100;
+        populateSlides();
 
-        window.stateP = $stateParams;
+    };
 
+    var populateSlides = function() {
         // Show the particular month
         if ($stateParams.year && $stateParams.month) {
             self.slideMonth = $stateParams.month;
@@ -155,9 +158,7 @@ slideshowApp.controller('MainContent', [
             }, function(error) {
                 console.log('Error retreiving slides from backend: ', error);
             });
-
         }
-
     };
 
     var apiSlideDataToUI = function(slides, isAllSlides) {
@@ -253,13 +254,23 @@ slideshowApp.controller('MainContent', [
 
     var watchArrange = function() {
         $rootScope.$on('nav:arrange', function(e, data) {
-            console.log('Arrange has been toggled elseware');
-            console.log('Event: ', e);
-            console.log('Data: ', data);
-            console.log('State: ', $stateParams);
+
             self.arrange = data;
+            if (self.arrange) {
+                self.disableScroll = true;
+            }
         });
 
+    };
+
+    var watchReorderCompelete = function() {
+        $rootScope.$on('reorder:complete', function(e, data) {
+
+            self.orderedSlides = [];
+            populateSlides();
+            self.disabledScroll = false;
+
+        });
     };
 
     init();
