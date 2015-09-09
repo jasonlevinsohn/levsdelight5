@@ -28,6 +28,8 @@
     "ngInfiniteScroll": "~1.2.1",
     "momentjs": "~2.10.3",
     "angular-resource": "~1.4.3",
-    "autofill-event": "~1.0.0"
+    "autofill-event": "~1.0.0",
+    "packery": "~1.4.2",
+    "draggabilly": "~1.2.4"
   }
 }

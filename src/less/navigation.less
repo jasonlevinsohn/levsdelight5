@@ -1,9 +1,4 @@
 nav {
-    // margin-top: 15px;
-    // Admin navbar
-    &.admin-navbar {
-        top: 55px;
-    }
 
     .logo {
         h2 {
@@ -36,6 +31,23 @@ nav {
             text-transform: capitalize;
         }
     }
+
+    &.admin-navbar {
+        top: 55px;
+
+        .left-block {
+            p {
+                display: inline-block;
+            }
+
+            button.arrange {
+                display: inline-block;
+                outline: none;
+                margin: 8px 0 0 10px;
+            }
+        }
+    }
+
 }
 
 .login-modal {
@@ -53,5 +65,6 @@ nav {
         font-size: 12px;
         color: lightcoral;
     }
+
 }
 

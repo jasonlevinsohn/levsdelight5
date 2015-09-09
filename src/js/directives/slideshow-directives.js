@@ -110,7 +110,145 @@
                 });
             }
         };
-    }]);
+    }])
+    .directive('l2Packery', function($timeout, $window, UpdateSlidesService) {
+        return {
+            restrict: 'A',
+            scope: {
+                l2Packery: '='
+            },
+            link: function(scope, el, attrs, ctrl) {
+
+                var packedGroup,
+                    foundGroup,
+                    draggieList = [],
+                    packeryObject,
+                    orderSet = false;
+
+                var toggleArrange = function() {
+
+                    var itemOrderMap = [];
+
+                    $timeout(function() {
+
+                        if (scope.l2Packery) {
+                            packedGroup = el.packery({
+                                gutter: 0 
+                            });
+
+                            foundGroup = packedGroup.find('.slide-tile');
+
+                            foundGroup.each(function(i, itemElem) {
+                                var sWidth, sHeight, draggie;
+
+                                sWidth = $(itemElem).outerWidth();
+                                sHeight = $(itemElem).outerHeight();
+
+                                draggie = new Draggabilly(itemElem, {
+                                    grid: [sWidth, sHeight]
+                                });
+
+                                draggieList.push(draggie);
+
+                                packedGroup.packery('bindDraggabillyEvents', draggie);
+
+                                // Tests if the order has ever been set for this group.
+                                if ($(itemElem).data('order') !== 0) {
+                                    orderSet = true;
+                                }
+
+                            });
+
+                            if (orderSet) {
+                                console.log('The order for this group has been set.');
+                            } else {
+                                console.log('The order for this group has NOT been set.');
+
+                            }
+
+                            // Set the order of the items to defaults if has the order has never been set.
+                            if (!orderSet) {
+                                foundGroup.each(function(i, itemElem) {
+                                    $(itemElem).attr('data-order', i+1);
+                                    $(itemElem).data('order', i+1);
+                                });
+                            }
+
+                        } else {
+                            if (packedGroup !== undefined) {
+
+                                // Check if the order of the elements is different from when we started
+                                // arranging.  If so, put them in a list and send them to the server to be updated.
+                                _.each(packedGroup.packery('getItemElements'), function(item, i) {
+                                    var oldOrder,
+                                        newOrder;
+
+                                    oldOrder = $(item).data('order');
+                                    newOrder = i+1;
+
+                                    // If the order has been set before, just
+                                    // set the ones changed by the user.  Otherwise,
+                                    // set them all in the database if
+                                    // this is the first time.
+                                    if (orderSet) {
+                                        if (oldOrder !== newOrder) {
+                                            itemOrderMap.push({
+                                                id: $(item).data('pk'),
+                                                oldOrder: oldOrder,
+                                                newOrder: newOrder
+                                            });
+
+                                        }
+                                    } else {
+                                        itemOrderMap.push({
+                                            id: $(item).data('pk'),
+                                            oldOrder: oldOrder,
+                                            newOrder: newOrder
+                                        });
+                                    }
+                                });
+
+
+                                console.log('itemOrderMap: ', itemOrderMap);
+
+                                // Send re-order slides to the server if there have
+                                // been any items reordered
+                                if (itemOrderMap.length > 0) {
+                                    UpdateSlidesService.addReorder();
+
+                                    UpdateSlidesService.reorderSlides(itemOrderMap)
+                                        .then(function(success) {
+                                            UpdateSlidesService.resolveReorder();
+                                            console.log(success);
+                                        }, function(error) {
+                                            console.log(error);
+                                        });
+                                }
+
+                                _.each(draggieList, function(drag) {
+                                    var slide;
+                                    // console.log('Drag: ', drag);
+                                    slide = drag.$element;
+
+                                    drag.destroy();
+                                });
+                                el.packery('destroy');
+                            }
+                        }
+
+                    });
+
+                };
+
+                scope.$watch('l2Packery', function(n, o) {
+                    if (n !== o) {
+                        toggleArrange();
+                    }
+
+                });
+            }
+        };
+    });
     
 
 })();

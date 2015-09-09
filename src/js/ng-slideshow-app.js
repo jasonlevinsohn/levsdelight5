@@ -96,19 +96,25 @@ slideshowApp.controller('MainContent', [
     self.slideMonth = "";
     self.slideYear = "";
     self.userIsAuthentic = false;
+    self.arrange = false;
 
     // Scoped Functions
     self.doScroll = function() {
-        console.log('scrolling');
         addSlidesToUi(1);
     };
 
     var init = function() {
 
         checkAuthentication();
+        watchArrange();
+        watchReorderCompelete();
 
-        var numberOfSlidesToGet = 100;
+        // var numberOfSlidesToGet = 100;
+        populateSlides();
 
+    };
+
+    var populateSlides = function() {
         // Show the particular month
         if ($stateParams.year && $stateParams.month) {
             self.slideMonth = $stateParams.month;
@@ -136,6 +142,7 @@ slideshowApp.controller('MainContent', [
 
             getAllSlides().then(function(success) {
                 if (success.data) {
+                    console.log('Success Data: ', success);
                     // If we have slides display them, otherwise display
                     // no slides found.
                     if (success.data.length > 0) {
@@ -151,9 +158,7 @@ slideshowApp.controller('MainContent', [
             }, function(error) {
                 console.log('Error retreiving slides from backend: ', error);
             });
-
         }
-
     };
 
     var apiSlideDataToUI = function(slides, isAllSlides) {
@@ -161,7 +166,10 @@ slideshowApp.controller('MainContent', [
 
 
         localSlides = _.map(slides, function(d) {
-            return d.fields;
+            var obj;
+            obj = d.fields;
+            obj.pk = d.pk;
+            return obj;
         });
 
         DataService.setMonthMap(monthMap.data, isAllSlides);
@@ -221,8 +229,12 @@ slideshowApp.controller('MainContent', [
 
         // Set Event Handler for when the user logs in.
         $rootScope.$on('AUTH_EVENT', function(e, data) {
-            if (data !== 'anonymous')
+            if (data !== 'anonymous') {
                 self.userIsAuthentic = true;
+            } else {
+                self.userIsAuthentic = false;
+            }
+
         });
 
         // Check if the user is logged in
@@ -238,6 +250,27 @@ slideshowApp.controller('MainContent', [
                 $log.error(error);
             });
 
+    };
+
+    var watchArrange = function() {
+        $rootScope.$on('nav:arrange', function(e, data) {
+
+            self.arrange = data;
+            if (self.arrange) {
+                self.disableScroll = true;
+            }
+        });
+
+    };
+
+    var watchReorderCompelete = function() {
+        $rootScope.$on('reorder:complete', function(e, data) {
+
+            self.orderedSlides = [];
+            populateSlides();
+            self.disabledScroll = false;
+
+        });
     };
 
     init();
@@ -265,7 +298,7 @@ slideshowApp.controller('MainContent', [
     self.userIsAuthentic = false;
     self.navCollapsed = true;
     self.theSetUser = undefined;
-
+    self.arrange = false;
 
     var init = function() {
 
@@ -278,7 +311,8 @@ slideshowApp.controller('MainContent', [
         } else {
             $log.warn("No Month List Data");
         }
-    // });
+
+        $stateParams.arrange = self.arrange;
 
     };
 
@@ -288,9 +322,20 @@ slideshowApp.controller('MainContent', [
     // autofill-event polyfill.
     $('#id_auth_form input').checkAndTriggerAutoFillEvent();
 
+
+    // ############### Scoped Functions - BEGIN ###############
+
+    self.toggleArrange = function() {
+        self.arrange = !self.arrange;
+        $rootScope.$emit('nav:arrange', self.arrange);
+        $stateParams.arrange = self.arrange;
+    };
+
     self.logout = function() {
         AuthFactory.auth.logout(function() {
-            self.user = undefined;
+            self.theSetUser = undefined;
+            self.userIsAuthentic = false;
+            $rootScope.$emit('AUTH_EVENT', 'anonymous');
         });
     };
 
@@ -314,6 +359,8 @@ slideshowApp.controller('MainContent', [
         });
 
     };
+
+    // ############### Scoped Functions - END ############### 
 
     var checkAuthentication = function() {
         // Check if the user is logged in

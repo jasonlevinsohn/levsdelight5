@@ -2,6 +2,46 @@
     var app = angular.module('slideshow');
 
     app
+    .service('UpdateSlidesService', function($http, $rootScope, $timeout) {
+        var itemsArrangedCount = 0;
+
+        var pub = {};
+
+        pub.reorderSlides = reorderSlides;
+        pub.addReorder = addReorder;
+        pub.resolveReorder = resolveReorder;
+
+        function reorderSlides(slideObj) {
+            var jsonData;
+            jsonData = JSON.stringify(slideObj);
+            var sendObj = {
+                'reorder': jsonData
+            };
+            return $http.post('/api/reorder/', jsonData);
+        }
+
+        // Adds to the count of reorderings happening
+        function addReorder() {
+            itemsArrangedCount++;
+        }
+
+        // Resolves a reordering has completed and checks if
+        // all the reorderings have been completed.  If so,
+        // fire a reorder complete event to re-populate the slides.
+        function resolveReorder() {
+            if (itemsArrangedCount > 0) {
+                itemsArrangedCount--;
+            }
+
+            $timeout(function() {
+                if (itemsArrangedCount === 0) {
+                    $rootScope.$emit('reorder:complete', itemsArrangedCount);
+                }
+            });
+        }
+        
+        return pub;
+    })
     .service('DataService', function() {
         var pub = {};
         var self = this;
@@ -133,17 +173,23 @@
 
 
             // Compile the slide metadata.
-            // TODO: We might have to create a new group when there
             groupedSlideList = _.groupBy(slideList, 'slideshow_id');
 
             // are more than 12 slides in the group.
             _.each(self.allSlidesMonthMap, function(month, index) {
                 var group,
-                    monthSlides;
+                    monthSlides,
+                    orderedMonthSlides;
 
                 monthSlides = groupedSlideList[month.slideshow_id.toString()];
+
+                // Order the month slides by the order_id.
+                orderedMonthSlides = _.sortBy(monthSlides, function(s) {
+                    return s.order_id;
+                });
+
                 group = month;
-                group.monthsSlides = monthSlides;
+                group.monthsSlides = orderedMonthSlides;
 
                 newList.push(group);
 
@@ -152,73 +198,11 @@
             // Remove any objects in the array where no pictures
             // have been added yet.
             _.remove(newList, function(n) {
-                return n.monthsSlides === undefined;
+
+                return n.monthsSlides.length === 0;
             });
 
             return newList;
-
-
-            // Add the first header object to the list.
-            // newList.push({
-            //     header: true,
-            //     name: slideList[0].dateGroup
-            // });
-
-            // // Hold the current month year text.
-            // tempHeader = slideList[0].dateGroup;
-            
-            // _.each(slideList, function (s, i) {
-
-            //     // List length has reached the interval,
-            //     // close out list and start a new.
-            //     if (subList.length === interval) {
-            //         newList.push({
-            //             name: s.dateGroup,
-            //             list: subList
-            //         });
-            //         subList = [];
-
-            //     // The List has gone to a new Month, add a list
-            //     // header object to the list and start a new Group.
-            //     } else if (s.dateGroup !== tempHeader) {
-            //         newList.push({
-            //             name: s.dateGroup,
-            //             list: subList
-            //         });
-
-            //         newList.push({
-            //             header: true,
-            //             name: s.dateGroup
-            //         });
-
-            //         // Change the temp header.
-            //         tempHeader = s.dateGroup;
-
-            //         // Clear out the sublist and start a new.
-            //         subList = [];
-
-            //     // The end of the list, but the remaining
-            //     // objects in the last array and push
-            //     } else if (i === slideList.length - 1) {
-            //         s.showing = (i <= interval ? true : false);
-            //         subList.push(s);
-
-            //         newList.push({
-            //             name: s.dateGroup,
-            //             list: subList
-            //         });
-            //     } else {
-
-            //         // Show the first 12 images by default. After that
-            //         // let the infinite scroller show the images.
-            //         s.showing = (i <= interval ? true : false);
-            //         subList.push(s);
-            //     }
-
-            // });
-
-            // return newList;
-
         };
 
         return pub;

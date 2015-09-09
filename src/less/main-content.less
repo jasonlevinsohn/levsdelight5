@@ -14,6 +14,10 @@
             padding: 0;
         }
 
+        .packery-container {
+            margin-top: 60px;
+        }
+
         li {
             color: white;
             list-style: none;
@@ -28,10 +32,7 @@
             }
 
             &.slide-tile {
-                // border: 1px solid #000;
-                // width: 100px;
-                // height: 150px;
-                // padding: 10px;
+                border: 1px solid red;
                 margin: 0px;
                 min-height: 215px;
 
@@ -39,6 +40,24 @@
                     min-height: 250px;
                 }
 
+            }
+
+            .arrange-button {
+                cursor: pointer;
+                position: absolute;
+                color: orange;
+                top: 33%;
+                left: 37%;
+                font-size: 50px;
+                background-color: #fff;
+                border-radius: 50%;
+                width: 75px;
+                height: 75px;
+                padding-top: 10px;
+
+                &:active {
+                    color: red;
+                }
             }
 
             .date {
