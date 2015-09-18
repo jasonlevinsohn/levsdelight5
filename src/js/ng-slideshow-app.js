@@ -71,6 +71,7 @@ slideshowApp.controller('MainContent', [
         '$rootScope',
         '$log',
         '$http',
+        '$q',
         'DataService',
         '$stateParams',
         'monthMap',
@@ -80,6 +81,7 @@ slideshowApp.controller('MainContent', [
             $rootScope,
             $log,
             $http,
+            $q,
             DataService,
             $stateParams,
             monthMap,
@@ -128,6 +130,9 @@ slideshowApp.controller('MainContent', [
     };
 
     var populateSlides = function() {
+
+        var d = $q.defer();
+
         // Show the particular month
         if ($stateParams.year && $stateParams.month) {
             self.slideMonth = $stateParams.month;
@@ -146,8 +151,10 @@ slideshowApp.controller('MainContent', [
                     } else {
                         $log.warn('Error retreiving ' + $stateParams.month + ' slides data');
                     }
+                    d.resolve();
                 }, function(error) {
                     console.log('Error retreiving slides from the backend: ', error);
+                    d.reject();
                 });
 
         // Show all the months
@@ -167,11 +174,15 @@ slideshowApp.controller('MainContent', [
                     $log.warn('Error retrieving all slides data');
                 }
                 addSlidesToUi(1);
+                d.resolve();
 
             }, function(error) {
                 $log.log('Error retreiving slides from backend: ', error);
+                d.reject();
             });
         }
+
+        return d.promise;
     };
 
     var apiSlideDataToUI = function(slides, isAllSlides) {
@@ -269,17 +280,25 @@ slideshowApp.controller('MainContent', [
         $rootScope.$on('nav:arrange', function(e, isArrange) {
 
             self.arrange = isArrange;
-            self.disableScroll = self.edit;
+
+            // We only want to change disable to true here,
+            // when arrange has started not when it has stopped.
+            if (isArrange) {
+                self.disableScroll = true;
+            }
         });
 
     };
 
     var watchReorderCompelete = function() {
         $rootScope.$on('reorder:complete', function(e, data) {
+            var promise;
 
             self.orderedSlides = [];
-            populateSlides();
-            self.disableScroll = false;
+            promise = populateSlides();
+            promise.then(function() {
+                self.disableScroll = false;
+            });
 
         });
     };
@@ -289,7 +308,11 @@ slideshowApp.controller('MainContent', [
 
         $rootScope.$on('nav:edit', function(e, isEdit) {
             self.edit = isEdit;
-            self.disableScroll = self.edit;
+
+            if (isEdit) {
+                self.disableScroll = true;
+            }
+
             editedSlides = runGetSetTitleDesc();
 
             // If we have slides that have been edited, send them

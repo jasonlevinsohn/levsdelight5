@@ -119,6 +119,7 @@
             },
             link: function(scope, el, attrs, ctrl) {
 
+
                 var packedGroup,
                     foundGroup,
                     draggieList = [],
