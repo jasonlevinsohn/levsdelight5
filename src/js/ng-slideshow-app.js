@@ -66,26 +66,29 @@ var slideshowApp = angular.module('slideshow', [
                 }
             });
     }]);
-    // .run(['$state', function($state) {
-
-    //     console.log('Initial State: ', $state);
-    //     if ($state.current.url === '/') {
-    //         $state.go('levs-main');
-    //     }
-    // }]);
-
 
 slideshowApp.controller('MainContent', [
         '$rootScope',
+        '$log',
         '$http',
         'DataService',
         '$stateParams',
         'monthMap',
         'AuthFactory',
-        function($rootScope, $http, DataService, $stateParams, monthMap, AuthFactory) {
+        'UpdateSlidesService',
+        function(
+            $rootScope,
+            $log,
+            $http,
+            DataService,
+            $stateParams,
+            monthMap,
+            AuthFactory,
+            UpdateSlidesService) {
 
     var slideshowP,
         allSlides,
+        runGetSetTitleDesc,
         self = this;
 
     // Scoped Variablies
@@ -97,6 +100,7 @@ slideshowApp.controller('MainContent', [
     self.slideYear = "";
     self.userIsAuthentic = false;
     self.arrange = false;
+    self.edit = false;
 
     // Scoped Functions
     self.doScroll = function() {
@@ -106,11 +110,20 @@ slideshowApp.controller('MainContent', [
     var init = function() {
 
         checkAuthentication();
+
+        // Re-order slides
         watchArrange();
         watchReorderCompelete();
 
+        // Edit Titles and Descriptions
+        watchEdit();
+
         // var numberOfSlidesToGet = 100;
         populateSlides();
+
+        // Create Edit Closure
+        runGetSetTitleDesc = getSetTitleDesc();
+        
 
     };
 
@@ -156,7 +169,7 @@ slideshowApp.controller('MainContent', [
                 addSlidesToUi(1);
 
             }, function(error) {
-                console.log('Error retreiving slides from backend: ', error);
+                $log.log('Error retreiving slides from backend: ', error);
             });
         }
     };
@@ -253,12 +266,10 @@ slideshowApp.controller('MainContent', [
     };
 
     var watchArrange = function() {
-        $rootScope.$on('nav:arrange', function(e, data) {
+        $rootScope.$on('nav:arrange', function(e, isArrange) {
 
-            self.arrange = data;
-            if (self.arrange) {
-                self.disableScroll = true;
-            }
+            self.arrange = isArrange;
+            self.disableScroll = self.edit;
         });
 
     };
@@ -268,10 +279,89 @@ slideshowApp.controller('MainContent', [
 
             self.orderedSlides = [];
             populateSlides();
-            self.disabledScroll = false;
+            self.disableScroll = false;
 
         });
     };
+
+    var watchEdit = function() {
+        var editedSlides;
+
+        $rootScope.$on('nav:edit', function(e, isEdit) {
+            self.edit = isEdit;
+            self.disableScroll = self.edit;
+            editedSlides = runGetSetTitleDesc();
+
+            // If we have slides that have been edited, send them
+            // off to the server.
+            if (editedSlides && editedSlides.length > 0) {
+                UpdateSlidesService.updateTitleAndDesc(editedSlides)
+                    .then(function(success) {
+                        $log.log('Slides updated: ', success);
+                    }, function(error) {
+                        $log.warn('Error updated slides: ', error);
+                    });
+            }
+
+        });
+
+    };
+
+    function getSetTitleDesc() {
+        var slidesCopy;
+        // An edit has started.  Make a copy of all
+        // Slides
+        function editClosure() {
+            var copyList = [],
+                currentList = [],
+                diffList = [];
+
+            if (self.edit) {
+                slidesCopy = _.cloneDeep(self.orderedSlides);
+                return false;
+            } else {
+
+                // Create two lists to filter through
+                _.each(slidesCopy, function(month) {
+                    _.each(month.monthsSlides, function(slide) {
+                        copyList.push({
+                            id: slide.pk,
+                            title: slide.title,
+                            desc: slide.desc
+                        });
+                    });
+
+                });
+
+                _.each(self.orderedSlides, function(month) {
+                    _.each(month.monthsSlides, function(slide) {
+                        currentList.push({
+                            id: slide.pk,
+                            title: slide.title,
+                            desc: slide.desc
+                        });
+                    });
+
+                });
+
+
+                // Filter out the Titles/Descriptions that have changed
+                for (var i = 0; i < copyList.length;i++) {
+                    if (copyList[i].title !== currentList[i].title ||
+                            copyList[i].desc !== currentList[i].desc) {
+
+                        diffList.push(currentList[i]);
+                            }
+                }
+
+                return diffList;
+            }
+        }
+
+        return editClosure;
+
+    }
+
 
     init();
 
@@ -299,6 +389,7 @@ slideshowApp.controller('MainContent', [
     self.navCollapsed = true;
     self.theSetUser = undefined;
     self.arrange = false;
+    self.edit = false;
 
     var init = function() {
 
@@ -324,10 +415,18 @@ slideshowApp.controller('MainContent', [
 
 
     // ############### Scoped Functions - BEGIN ###############
+    self.toggleEdit = function() {
+        self.edit = !self.edit;
+        $rootScope.$emit('nav:edit', self.edit);
+    };
 
     self.toggleArrange = function() {
         self.arrange = !self.arrange;
         $rootScope.$emit('nav:arrange', self.arrange);
+
+        // A different method of communicating between two
+        // view controllers in the same state, but we are
+        // using events instead.
         $stateParams.arrange = self.arrange;
     };
 

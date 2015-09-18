@@ -42,6 +42,7 @@
             <p class="navbar-text">Greetings, {{ nav.theSetUser }}</p>
             <button
                 ng-if="!nav.arrange"
+                ng-disabled="nav.edit"
                 type="button"
                 ng-click="nav.toggleArrange()"
                 class="btn btn-primary arrange">
@@ -52,6 +53,21 @@
                 type="button"
                 ng-click="nav.toggleArrange()"
                 class="btn btn-default arrange">
+                Done
+            </button>
+            <button
+                ng-if="!nav.edit"
+                ng-disabled="nav.arrange"
+                type="button"
+                ng-click="nav.toggleEdit()"
+                class="btn btn-info arrange">
+                Edit
+            </button>
+            <button
+                ng-if="nav.edit"
+                type="button"
+                ng-click="nav.toggleEdit()"
+                class="btn btn-info arrange">
                 Done
             </button>
         </div>

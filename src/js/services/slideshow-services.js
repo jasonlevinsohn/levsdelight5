@@ -10,6 +10,7 @@
         pub.reorderSlides = reorderSlides;
         pub.addReorder = addReorder;
         pub.resolveReorder = resolveReorder;
+        pub.updateTitleAndDesc = updateTitleAndDesc;
 
         function reorderSlides(slideObj) {
             var jsonData;
@@ -38,6 +39,15 @@
                     $rootScope.$emit('reorder:complete', itemsArrangedCount);
                 }
             });
+        }
+
+        // Send the edited slides to the server to be updated and saved.
+        function updateTitleAndDesc(slides) {
+            var jsonData,
+                sendObj;
+
+            jsonData = JSON.stringify(slides);
+            return $http.post('/api/update/', jsonData);
         }
         
         return pub;
