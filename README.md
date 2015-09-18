@@ -17,7 +17,7 @@
 
 
 #### Updates
-* 06.1.2015 
+* 6.1.2015 
     * Separated Backend from Front-end.  This repo is just static files (JS, CSS, HTML).
     * There is a separate repo named `levsdelight4` which handles the api calls using Django.
     * CSS is generated with a LESS preprocessor and is mostly `Twitter Bootstrap` based.
@@ -32,3 +32,8 @@
 
 * 8.10.2015
     * Base Authentication
+
+* 9.18.2015
+    * Admin Toolbar
+    * Rearrange Slides with Drag and Drop
+    * Edit Title/Description
