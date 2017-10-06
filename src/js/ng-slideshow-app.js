@@ -1,70 +1,71 @@
 var slideshowApp = angular.module('slideshow', [
-        'ui.router',
-        'ui.bootstrap',
-        'infinite-scroll',
-        'ngResource'])
+    'ui.router',
+    'ui.bootstrap',
+    'infinite-scroll',
+    'ngFileUpload',
+    'ngResource'])
     .config([
             '$stateProvider',
             '$urlRouterProvider',
             '$httpProvider', function($stateProvider, $urlRouterProvider, $httpProvider) {
 
-        // Django and Angular support csrf tokens.
-        // Tell Angular which cookie to add to what header.
-        $httpProvider.defaults.xsrfCookieName = 'csrftoken';
-        $httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken';
+    // Django and Angular support csrf tokens.
+    // Tell Angular which cookie to add to what header.
+    $httpProvider.defaults.xsrfCookieName = 'csrftoken';
+    $httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken';
 
-        $urlRouterProvider.otherwise('/');
-        $stateProvider
-            .state('levs-main', {
-                url: '/',
-                views: {
-                    'navigation': {
-                        templateUrl: 'views/navigation.html',
-                        controller: 'NavigationCtrl as nav'
-                    },
-                    'content': {
-                        templateUrl: 'views/content.html',
-                        controller: 'MainContent as mc'
-                    }
+    $urlRouterProvider.otherwise('/');
+    $stateProvider
+        .state('levs-main', {
+            url: '/',
+            views: {
+                'navigation': {
+                    templateUrl: 'views/navigation.html',
+                    controller: 'NavigationCtrl as nav'
                 },
-                resolve: {
-                    monthMap: function($http) {
-                        return $http.get('/api/monthlist/');
-                    }
+                'content': {
+                    templateUrl: 'views/content.html',
+                    controller: 'MainContent as mc'
                 }
-            })
-            .state('slideshow', {
-                url: '/slideshow/{year}/{month}/',
-                views: {
-                    'navigation': {
-                        templateUrl: 'views/navigation.html',
-                        controller: 'NavigationCtrl as nav'
-                    },
-                    'content': {
-                        templateUrl: 'views/content.html',
-                        controller: 'MainContent as mc'
-                    }
+            },
+            resolve: {
+                monthMap: function($http) {
+                    return $http.get('/api/monthlist/');
+                }
+            }
+        })
+        .state('slideshow', {
+            url: '/slideshow/{year}/{month}/',
+            views: {
+                'navigation': {
+                    templateUrl: 'views/navigation.html',
+                    controller: 'NavigationCtrl as nav'
                 },
-                resolve: {
-                    monthMap: function($http, $q, $rootScope) {
-                        var p = $q.defer();
+                'content': {
+                    templateUrl: 'views/content.html',
+                    controller: 'MainContent as mc'
+                }
+            },
+            resolve: {
+                monthMap: function($http, $q, $rootScope) {
+                    var p = $q.defer();
 
-                        if ($rootScope.monthList) {
-                            return $rootScope.monthList;
-                        } else {
-                            $http.get('/api/monthlist/')
-                                .then(function(success) {
-                                    $rootScope.monthList = success;
-                                    p.resolve(success);
-                                },
-                                function(error) {
-                                    p.reject('Unable to reteive Month List');
-                                });
-                        }
-                        return p.promise;
+                    if ($rootScope.monthList) {
+                        return $rootScope.monthList;
+                    } else {
+                        $http.get('/api/monthlist/')
+                            .then(function(success) {
+                                $rootScope.monthList = success;
+                                p.resolve(success);
+                            },
+                            function(error) {
+                                p.reject('Unable to reteive Month List');
+                            });
                     }
+                    return p.promise;
                 }
-            });
+            }
+        });
     }]);
 
 slideshowApp.controller('MainContent', [
@@ -482,6 +483,20 @@ slideshowApp.controller('MainContent', [
 
     };
 
+    self.openPictureUploadModal = function() {
+        var scope = $scope.$new();
+        var modalInstance = $modal.open({
+            templateUrl: 'views/modals/upload.html',
+            controller: 'UploadModalCtrl as upload',
+            scope: scope
+        });
+
+        modalInstance.result.then(function(result) {
+            console.log('Upload Modal result: ', result);
+        })
+    }
+
+
     // ############### Scoped Functions - END ############### 
 
     var checkAuthentication = function() {
@@ -505,6 +520,81 @@ slideshowApp.controller('MainContent', [
     init();
 
 }])
+.controller('UploadModalCtrl', function($rootScope, $scope, $modalInstance, Upload, DataService, $http) {
+    var self = this;
+    self.filesToUpload = [];
+
+    // TODO: Add this to the UI
+    self.monthList = DataService.flatMonthList($rootScope.monthList);
+    $scope.theFiles = 'these be the files';
+
+    // Scoped Functions
+    self.upload = upload;
+
+    console.log('MonthMap: ', $rootScope);
+
+
+    $scope.$watch('files', function(n) {
+
+        if (n !== undefined) {
+            self.filesToUpload.push(n);
+            processPreview(n);
+        }
+    });
+
+    function upload() {
+        console.log('self: ', self);
+    };
+
+    function processPreview(n) {
+        console.log('file to process: ', n[0]);
+
+        var fileFormData = new FormData();
+
+        fileFormData.append('farmFile', n[0]);
+        fileFormData.append('title', 'Cool Picture');
+        fileFormData.append('desc', 'this is an awesome description');
+        fileFormData.append('folder_name', 'july2014');
+        fileFormData.append('slideshow_id', 33);
+        fileFormData.append('picture_location', 'september2017/' + n[0].name);
+        fileFormData.append('modified_date', n[0].lastModified);
+
+        $http.post(
+            '/api/uploadimage/',
+            fileFormData,
+            {
+                headers: {
+                    'Content-Type': undefined
+                }
+            }
+        ).success(function(response) {
+            console.log('Response: ', response);
+        }).error(function(error) {
+            console.log('Error: ', error);
+        })
+
+
+    }
+
+})
+.directive('l3Thumbnail', function($http) {
+    return {
+        restrict: 'A',
+        scope: {
+            l3Thumbnail: '='
+        },
+        link: function(scope, el) {
+
+            var reader = new FileReader();
+            reader.onload = (function(aImg) {
+                return function(e) {
+                    aImg[0].src = e.target.result;
+                };
+            })(el);
+            reader.readAsDataURL(scope.l3Thumbnail[0]);
+        }
+    }
+})
 .controller('LoginModalCtrl', function($modalInstance, AuthFactory) {
     var self = this;
     console.log('ModalInstance');

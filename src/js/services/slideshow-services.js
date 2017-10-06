@@ -52,7 +52,7 @@
         
         return pub;
     })
-    .service('DataService', function() {
+    .service('DataService', function($http) {
         var pub = {};
         var self = this;
 
@@ -214,6 +214,31 @@
 
             return newList;
         };
+
+        pub.flatMonthList = function(list) {
+            var flatList = [],
+                orderedFlatList = [];
+
+            if (list.data) {
+                _.each(list.data, function(month, index) {
+
+                    if (month.fields.slideshow_id < 500) {
+                        flatList.unshift({
+                            id: month.fields.slideshow_id,
+                            month: month.fields.month,
+                            year: month.fields.year,
+                            displayMonth: '' + month.fields.month + ' ' + month.fields.year + ''
+                        });
+                    }
+                });
+
+                flatList = _.sortBy(flatList, function(l) {
+                    return -l.id;
+                });
+
+                return flatList;
+            }
+        }
 
         return pub;
     });

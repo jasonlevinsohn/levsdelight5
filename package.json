@@ -17,8 +17,21 @@
     "gulp-clean": "^0.3.1",
     "gulp-clean-dest": "^0.1.0",
     "gulp-concat": "^2.5.2",
-    "gulp-less": "^3.0.3",
+    "gulp-less": "3.3.2",
     "gulp-livereload": "^3.8.0",
-    "gulp-typescript": "^2.7.5"
+    "gulp-typescript": "3.2.1"
+  },
+  "dependencies": {
+    "angular": "^1.6.1",
+    "angular-ui-bootstrap": "^2.5.0",
+    "typescript": "^2.4.2"
+  },
+  "eslintConfig": {
+      "env": {
+          "browser": true
+      },
+      "globals": {
+          "angular": true
+      }
   }
 }

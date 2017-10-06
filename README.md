@@ -1,5 +1,12 @@
 ## Llamas On The Loose Static Site Repo
 
+### To Start Development
+* Make sure Postgres is running
+* Fire up Django backend server: `python manage.py runserver 0.0.0.0:8000`
+* Serve up local files: `gulp`
+
+
+
 ### TODO's
 * Create field in slideshow table for active project
 * Show an alert at the top of the screen with a link
@@ -37,3 +44,8 @@
     * Admin Toolbar
     * Rearrange Slides with Drag and Drop
     * Edit Title/Description
+
+* 9.12.2017
+    * Add Image Uploader from the site itself.
+    * Uploader button added to Admin Bar upon login
+    * [Using ng-file-upload](https://github.com/danialfarid/ng-file-upload#server)

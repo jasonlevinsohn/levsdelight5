@@ -1,0 +1,66 @@
+<div class="modal-body upload-modal">
+    <header>Upload Pictures</header>
+    <section class="drop-section">
+        Multiple files
+        <!-- <div class="button" ngf-select ng-model="files" ngf-multiple="true">Select</div> -->
+        Drop files:
+        <div
+            ngf-drop ng-model="files"
+            ngf-multiple="true"
+            class="drop-box">
+            Drop
+        </div>
+        <!-- <div -->
+        <!--     l3-drop -->
+        <!--     class="drop-box"> -->
+        <!--     Drop Images Here -->
+        <!-- </div> -->
+        <!-- <button type="submit" ng-click="submit()">submit</button> -->
+    </section>
+    <section class="files-to-upload row">
+        Select a month:
+        <select id="month-list">
+            <option
+                ng-repeat="month in upload.monthList"
+                value="month.id">
+                {{ month.displayMonth }}
+            </option>
+        </select>
+        <div class="file row" ng-repeat="file in upload.filesToUpload">
+            <div class="name-image-container col-xs-12 col-sm-3">
+                <div class="file-name">
+                    Name: {{ file[0].name }}
+                </div>
+                <img class="image-preview" l3-thumbnail="file" />
+            </div>
+            <div class="title-desc-container col-xs-12 col-sm-9">
+                <div class="form-group">
+                    <label for="{{ 'id-title-' + $index }}">Title</label>
+                    <input
+                        class="form-control"
+                        type="text"
+                        id="{{ 'id-title-' + $index }}"
+                        ng-model="file.title">
+                </div>
+                <div class="form-group">
+                    <label for="{{ 'id-desc-' + $index }}">Description</label>
+                    <input
+                        class="form-control"
+                        type="text"
+                        id="{{ 'id-desc-' + $index }}"
+                        ng-model="file.desc">
+                </div>
+            </div>
+        </div>
+
+    </section>
+    <footer>
+        <button type="button" class="btn" ng-click="$dismiss()">Cancel</button>
+        <button
+            type="button"
+            class="btn btn-success"
+            ng-click="upload.upload()">Upload
+        </button>
+    </footer>
+
+</div>
